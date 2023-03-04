@@ -56,6 +56,7 @@ async def on_message(message):
             result = completion(history[channelID].history)
             history[channelID].history.append(result["choices"][0]["message"])
             await message.channel.send(result["choices"][0]["message"]["content"])
+    await bot.process_commands(message)
 
 
 async def main():
