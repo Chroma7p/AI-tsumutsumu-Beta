@@ -32,8 +32,7 @@ def completion(history):
 
 
 @bot.command()
-# "!hello"と送信された時
-async def reset(ctx):
+async def reboot(ctx):
     await history[ctx.channel.id].reset()
 
 
