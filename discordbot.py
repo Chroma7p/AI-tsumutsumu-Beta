@@ -46,7 +46,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    if not message.author.bot and message.content[:2] == "//":
+    if not message.author.bot and message.content[:2] != "//":
         channelID = message.channel.id
 
         print(channelID, message.content)
