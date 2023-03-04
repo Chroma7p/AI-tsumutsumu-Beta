@@ -31,6 +31,12 @@ def completion(history):
     )
 
 
+@bot.command()
+# "!hello"と送信された時
+async def reset(ctx):
+    await history[ctx.channel.id].reset()
+
+
 @bot.event
 # botの起動が完了したとき
 async def on_ready():
