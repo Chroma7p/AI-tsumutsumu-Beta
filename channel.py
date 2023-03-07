@@ -71,4 +71,4 @@ class Channel:
         return reply
 
     def make_log(self):
-        return self.base_prompt + [hist.to_dict()for hist in self.history]
+        return self.base_prompt + [hist.msg2dict()for hist in self.history]
