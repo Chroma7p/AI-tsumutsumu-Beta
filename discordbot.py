@@ -29,7 +29,7 @@ def is_question(message):
     if message.author.bot:
         return False
     # コマンドや二重スラッシュは無視
-    if message.content[:2] == "//" and message.content[0] == "!":
+    if message.content[:2] == "//" or message.content[0] == "!":
         return False
     return True
 
@@ -51,7 +51,8 @@ async def talk_history(ctx):
     channel = channels[ctx.channel.id]
     text = ""
     for msg in channel.history:
-        text += f"{msg.token}:{msg.content[:10]}{'...' if len(msg.content)>10 else ''}"
+        text += f"{msg.token}:{msg.content[:10]}{'...' if len(msg.content)>10 else ''}\n"
+    await ctx.send(text)
 """
 @bot.event
 # botの起動が完了したとき
