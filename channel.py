@@ -67,7 +67,7 @@ class Channel:
 
         self.history[-1].set_token(prompt_token)
         self.history.append(Message(Role.assistant, reply, completion_token))
-        print(reply)
+        print(prompt_token, reply)
         return reply
 
     def make_log(self):
