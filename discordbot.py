@@ -61,6 +61,8 @@ async def on_message(message):
         except openai.error.InvalidRequestError:
             channel.reset()
             await message.channel.send("情報の取得に失敗したみたい\n会話ログを削除するからもう一回試してみてね")
+        except Exception as e:
+            print(e)
     # コマンド側にメッセージを渡して終了
     await bot.process_commands(message)
 
