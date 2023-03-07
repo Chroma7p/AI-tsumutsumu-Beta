@@ -5,7 +5,7 @@ import os
 import asyncio
 from dotenv import load_dotenv
 import openai
-from history import History
+from channel import Channel
 
 
 load_dotenv()
@@ -18,10 +18,8 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
 
-channels = [985409309246644254, 1081461365694267453, 1082634484253466674]
-
-
-history = {channel: History(channel) for channel in channels}
+channels = {channel: Channel(channel) for channel in [
+    985409309246644254, 1081461365694267453, 1082634484253466674]}
 
 
 def completion(history):
@@ -33,7 +31,7 @@ def completion(history):
 
 @bot.command()
 async def reboot(ctx):
-    await history[ctx.channel.id].reset()
+    await channels[ctx.channel.id].reset()
 
 """
 @bot.event
@@ -47,20 +45,26 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    if not message.author.bot and message.content[:2] != "//" and message.content[0] != "!":
-        channelID = message.channel.id
-        print(channelID, message.content)
-        if channelID in channels:
-            history[channelID].history.append(
-                {"role": "user", "content": message.content})
-            try:
-                result = completion(history[channelID].history)
-                history[channelID].history.append(
-                    result["choices"][0]["message"])
-                await message.channel.send(result["choices"][0]["message"]["content"])
-            except openai.error.InvalidRequestError:
-                history[channelID].reset()
-                await message.channel.send("情報の取得に失敗したみたい\n会話ログを削除するからもう一回試してみてね")
+    channelID = message.channel.id
+    # チャンネルIDが該当しない場合の排除
+    if channelID not in channels:
+        return
+    # メッセージ主がボットなら排除
+    if message.author.bot:
+        return
+    # コマンドや二重スラッシュは無視
+    if message.content[:2] == "//" and message.content[0] == "!":
+        return
+    channels[channelID].history.append(
+        {"role": "user", "content": message.content})
+    try:
+        result = completion(channels[channelID].history)
+        channels[channelID].history.append(
+            result["choices"][0]["message"])
+        await message.channel.send(result["choices"][0]["message"]["content"])
+    except openai.error.InvalidRequestError:
+        channels[channelID].reset()
+        await message.channel.send("情報の取得に失敗したみたい\n会話ログを削除するからもう一回試してみてね")
 
     await bot.process_commands(message)
 

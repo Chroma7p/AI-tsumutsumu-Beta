@@ -1,4 +1,4 @@
-class History:
+class Channel:
     def __init__(self, channelID):
         self.channelID = channelID
         self.reset()
