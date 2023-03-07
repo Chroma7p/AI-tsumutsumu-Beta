@@ -55,6 +55,15 @@ class Channel:
         self.history: list[Message] = []
         self.reset()
         self.TOKEN_LIMIT = 3000
+        self.base_token = 600
+        self.get_base_token()
+
+    def get_base_token(self):
+        try:
+            result = completion(self.make_log())
+            self.base_token = result["usage"]["prompt_tokens"]
+        except Exception as e:
+            print(e)
 
     def reset(self):
         self.history = []
@@ -65,10 +74,10 @@ class Channel:
         prompt_token = result["usage"]["prompt_tokens"]
         completion_token = result["usage"]["completion_tokens"]
         reply = result["choices"][0]["message"]["content"]
-
         self.history[-1].set_token(prompt_token)
-        self.history.append(Message(Role.assistant, reply, completion_token))
-        print(prompt_token, reply)
+
+        self.history.append(Message(Role.assistant, reply,
+                            completion_token - self.base_token))
         return reply
 
     def make_log(self):
