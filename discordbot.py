@@ -14,7 +14,11 @@ APITOKEN = os.environ["DISCORD_BOT_TOKEN"]
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
 # botのオブジェクトを作成(コマンドのトリガーを!に)
-bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+bot = commands.Bot(
+    command_prefix="!",
+    intents=discord.Intents.all(),
+    # activity=discord.Activity(name="準備中")
+)
 
 
 channels = {channel: Channel(channel) for channel in [
