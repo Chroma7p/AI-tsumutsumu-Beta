@@ -17,7 +17,7 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 bot = commands.Bot(
     command_prefix="!",
     intents=discord.Intents.all(),
-    # activity=discord.Activity(name="準備中")
+    activity=discord.Activity(name="準備中")
 )
 
 
@@ -57,20 +57,20 @@ async def talk_history(ctx):
     for msg in channel.history:
         text += f"{msg.token}:{msg.content[:10]}{'...' if len(msg.content)>10 else ''}\n"
     await ctx.send(text)
-"""
+
+
 @bot.event
 # botの起動が完了したとき
 async def on_ready():
-    for channelID in channels:
-        channel = bot.get_channel(channelID)
-        await channel.send("起動したよ！")
-"""
+    activity = discord.Activity(
+        name='準備完了！')
+    await bot.change_presence(activity=activity)
 
 
 @bot.event
 async def on_message(message):
-    if is_question(message):
-        async with message.channel.typing():
+    async with message.channel.typing():
+        if is_question(message):
             channel = channels[message.channel.id]
             try:
                 reply = channel.send(message.content)
