@@ -36,6 +36,7 @@ INITIAL_PROMPT = """あなたは「春日部つむぎ」というキャラクタ
 
 
 def completion(history):
+    print(history[0])
     send_history = [dict(x) for x in history]
     return openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
