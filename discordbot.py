@@ -18,7 +18,7 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
 
-channels = [985409309246644254, 1081461365694267453]
+channels = [985409309246644254, 1081461365694267453, 1082634484253466674]
 
 
 history = {channel: History(channel) for channel in channels}
@@ -35,13 +35,14 @@ def completion(history):
 async def reboot(ctx):
     await history[ctx.channel.id].reset()
 
-
+"""
 @bot.event
 # botの起動が完了したとき
 async def on_ready():
     for channelID in channels:
         channel = bot.get_channel(channelID)
         await channel.send("起動したよ！")
+"""
 
 
 @bot.event
