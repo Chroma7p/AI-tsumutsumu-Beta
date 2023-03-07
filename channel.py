@@ -78,6 +78,7 @@ class Channel:
                                    - self.base_token - self.get_now_token())
 
         self.history.append(Message(Role.assistant, reply, completion_token))
+        self.thin_out()
         return reply
 
     def make_log(self):
