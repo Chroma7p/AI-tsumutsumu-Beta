@@ -74,10 +74,9 @@ class Channel:
         prompt_token = result["usage"]["prompt_tokens"]
         completion_token = result["usage"]["completion_tokens"]
         reply = result["choices"][0]["message"]["content"]
-        self.history[-1].set_token(prompt_token)
+        self.history[-1].set_token(prompt_token - self.base_token)
 
-        self.history.append(Message(Role.assistant, reply,
-                            completion_token - self.base_token))
+        self.history.append(Message(Role.assistant, reply, completion_token))
         return reply
 
     def make_log(self):
