@@ -39,6 +39,19 @@ async def reboot(ctx):
     channels[ctx.channel.id].reset()
     await ctx.send("リセットしたよ！")
 
+
+@bot.command()
+async def token(ctx):
+    channel = channels[ctx.channel.id]
+    await ctx.send(f"現在の利用しているトークンの数は{channel.get_now_token()}だよ！\n{channel.TOKEN_LIMIT}に達すると古いログから削除されていくよ！")
+
+
+@bot.command()
+async def talk_history(ctx):
+    channel = channels[ctx.channel.id]
+    text = ""
+    for msg in channel.history:
+        text += f"{msg.token}:{msg.content[:10]}{'...' if len(msg.content)>10 else ''}"
 """
 @bot.event
 # botの起動が完了したとき

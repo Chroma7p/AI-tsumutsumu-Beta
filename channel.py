@@ -54,6 +54,7 @@ class Channel:
         ]
         self.history: list[Message] = []
         self.reset()
+        self.TOKEN_LIMIT = 3000
 
     def reset(self):
         self.history = []
@@ -72,3 +73,15 @@ class Channel:
 
     def make_log(self):
         return [hist.msg2dict() for hist in self.base_prompt + self.history]
+
+    def get_now_token(self, i=0):
+        return sum([x.token for x in self.history])
+
+    def thin_out(self):  # 間引き
+        now_token = self.get_now_token()
+        remove_token = 0
+        remove_index = 0
+        while now_token - remove_token > self.TOKEN_LIMIT:
+            remove_token += self.history[remove_index].token
+            remove_index += 1
+        self.history = self.history[remove_index:]
