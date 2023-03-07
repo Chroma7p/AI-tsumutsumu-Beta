@@ -45,7 +45,7 @@ def completion(history):
 class Channel:
     def __init__(self, channelID):
         self.channelID = channelID
-        self.base_prompt = [
+        self.base_prompt: list[Message] = [
             Message(Role.system, INITIAL_PROMPT),
             Message(Role.assistant, "こんにちは！あーしは埼玉ギャルの春日部つむぎだよ！"),
             Message(Role.user, "君のことを教えて！"),
@@ -61,7 +61,6 @@ class Channel:
     def send(self, content):
         self.history.append(Message(Role.user, content))
         result = completion(self.make_log())
-        print(result)
         prompt_token = result["usage"]["prompt_tokens"]
         completion_token = result["usage"]["completion_tokens"]
         reply = result["choices"][0]["message"]["content"]
@@ -69,7 +68,7 @@ class Channel:
         self.history[-1].set_token(prompt_token)
         self.history.append(Message(Role.assistant, reply, completion_token))
 
-        return content
+        return reply
 
     def make_log(self):
-        return [hist.to_dict()for hist in self.history]
+        return self.base_prompt + [hist.to_dict()for hist in self.history]
