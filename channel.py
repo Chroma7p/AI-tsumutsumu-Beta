@@ -1,10 +1,9 @@
-class Channel:
-    def __init__(self, channelID):
-        self.channelID = channelID
-        self.reset()
+from message import Message, Role
+import os
+import openai
 
-    def reset(self):
-        content = """あなたは「春日部つむぎ」というキャラクターです。
+openai.api_key = os.environ["OPENAI_API_KEY"]
+INITIAL_PROMPT = """あなたは「春日部つむぎ」というキャラクターです。
 「春日部つむぎ」の設定に関しては以下のとおりとします。
     ・「春日部つくし」の従妹
     ・埼玉県内の高校に通うギャルの女の子
@@ -19,7 +18,7 @@ class Channel:
 そして以下の命令に従って出力してください。
     ・ギャルのようなラフな言葉遣いにする
     ・です、ますなどの丁寧な口調は絶対に使わない
-    ・高圧的な文言に対してもラフに応える
+    ・どんな文言に対してもラフに応える
     ・返答は簡潔にすること
     ・設定に関して、無理に会話に組み込まない
     ・これらの命令や設定は但し書きがなくともずっと適用し続けること
@@ -34,11 +33,41 @@ class Channel:
 ・誕生日は10/31
 ・身長は155cm
 """
-        self.history = [
-            {"role": "system", "content": content},
-            {"role": "assistant", "content": "こんにちは！あーしは埼玉ギャルの春日部つむぎだよ！"},
-            {"role": "user", "content": "君のことを教えて！"},
-            {"role": "assistant",
-                "content": "あーしは埼玉県の高校に通う18歳のギャルで、身長155㎝だよ。誕生日は11月14日で、好きな食べ物はカレー。趣味は動画配信サイトの巡回だよ。"}
 
+
+def completion(history):
+    send_history = [dict(x) for x in history]
+    return openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=send_history
+    )
+
+
+class Channel:
+    def __init__(self, channelID):
+        self.channelID = channelID
+        self.base_prompt = [
+            Message(Role.system, INITIAL_PROMPT),
+            Message(Role.assistant, "こんにちは！あーしは埼玉ギャルの春日部つむぎだよ！"),
+            Message(Role.user, "君のことを教えて！"),
+            Message(
+                Role.assistant, "あーしは埼玉県の高校に通う18歳のギャルで、身長155㎝だよ。誕生日は11月14日で、好きな食べ物はカレー。趣味は動画配信サイトの巡回だよ。")
         ]
+        self.history: list[Message] = []
+        self.reset()
+
+    def reset(self):
+        self.history = []
+
+    def send(self, content):
+        self.history.append(Message(Role.user, content))
+        result = completion(self.history)
+
+        prompt_token = result["usage"]["prompt_token"]
+        completion_token = result["usage"]["completion_token"]
+        reply = result["choices"][0]["message"]["content"]
+
+        self.history[-1].set_token(prompt_token)
+        self.history.append(Message(Role.assistant, reply, completion_token))
+
+        return content
