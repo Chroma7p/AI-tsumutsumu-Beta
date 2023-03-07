@@ -36,11 +36,9 @@ INITIAL_PROMPT = """あなたは「春日部つむぎ」というキャラクタ
 
 
 def completion(history):
-    print(history[0])
-    send_history = [dict(x) for x in history]
     return openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        messages=send_history
+        messages=history
     )
 
 
@@ -62,8 +60,7 @@ class Channel:
 
     def send(self, content):
         self.history.append(Message(Role.user, content))
-        result = completion(self.history)
-        print(self.history)
+        result = completion(self.make_log())
 
         prompt_token = result["usage"]["prompt_token"]
         completion_token = result["usage"]["completion_token"]
@@ -71,6 +68,8 @@ class Channel:
 
         self.history[-1].set_token(prompt_token)
         self.history.append(Message(Role.assistant, reply, completion_token))
-        print(self.history)
 
         return content
+
+    def make_log(self):
+        return [hist.to_dict()for hist in self.history]

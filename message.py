@@ -10,7 +10,7 @@ class Message:
         self.content = content
         self.token = 0
 
-    def __dict__(self):
+    def to_dict(self) -> dict:
         return {"role": self.role, "content": self.content}
 
     def set_token(self, token):
