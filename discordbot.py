@@ -49,14 +49,19 @@ async def on_ready():
 async def on_message(message):
     if not message.author.bot and message.content[:2] != "//" and message.content[0] != "!":
         channelID = message.channel.id
-
         print(channelID, message.content)
         if channelID in channels:
             history[channelID].history.append(
                 {"role": "user", "content": message.content})
-            result = completion(history[channelID].history)
-            history[channelID].history.append(result["choices"][0]["message"])
-            await message.channel.send(result["choices"][0]["message"]["content"])
+            try:
+                result = completion(history[channelID].history)
+                history[channelID].history.append(
+                    result["choices"][0]["message"])
+                await message.channel.send(result["choices"][0]["message"]["content"])
+            except openai.error.InvalidRequestError:
+                history[channelID].reset()
+                await message.channel.send("情報の取得に失敗したみたい\n会話ログを削除するからもう一回試してみてね")
+
     await bot.process_commands(message)
 
 
