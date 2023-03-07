@@ -70,17 +70,18 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     if is_question(message):
-        await message.channel.typing()
-        channel = channels[message.channel.id]
-        try:
-            reply = channel.send(message.content)
-            await message.channel.send(reply)
-        # APIの応答エラーを拾う
-        except openai.error.InvalidRequestError:
-            channel.reset()
-            await message.channel.send("情報の取得に失敗したみたい\n会話ログを削除するからもう一回試してみてね")
-        except Exception as e:
-            print("err:", e)
+        async with message.channel.typing():
+            channel = channels[message.channel.id]
+            try:
+                reply = channel.send(message.content)
+            # APIの応答エラーを拾う
+            except openai.error.InvalidRequestError:
+                channel.reset()
+                reply = "情報の取得に失敗したみたい\n会話ログを削除するからもう一回試してみてね"
+            except Exception as e:
+                reply = f"err:{e}"
+            finally:
+                await message.channel.send(reply)
     # コマンド側にメッセージを渡して終了
     await bot.process_commands(message)
 
