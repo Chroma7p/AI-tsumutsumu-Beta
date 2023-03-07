@@ -61,7 +61,7 @@ class Channel:
     def send(self, content):
         self.history.append(Message(Role.user, content))
         result = completion(self.make_log())
-
+        print(result)
         prompt_token = result["usage"]["prompt_token"]
         completion_token = result["usage"]["completion_token"]
         reply = result["choices"][0]["message"]["content"]
