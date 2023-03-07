@@ -52,6 +52,7 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     if is_question(message):
+        print(message.channel.id, message.author, message.content)
         channel = channels[message.channel.id]
         try:
             reply = channel.send(message.content)
