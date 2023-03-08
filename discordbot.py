@@ -6,6 +6,8 @@ import asyncio
 from dotenv import load_dotenv
 import openai
 from channel import Channel
+import io
+import aiohttp
 
 load_dotenv()
 
@@ -58,6 +60,29 @@ async def talk_history(ctx):
         c = msg.content[:10].replace('\n', '')
         text += f"{msg.token}:{c}{'...' if len(msg.content)>10 else ''}\n"
     await ctx.send(text)
+
+
+@bot.command()
+async def generate(ctx, *, arg):
+    if arg == "":
+        await ctx.send("`!generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
+    else:
+        try:
+            response = openai.Image.create(
+                prompt=arg,
+                n=1,
+                size="512x512"
+            )
+            image_url = response['data'][0]['url']
+            async with aiohttp.ClientSession() as session:
+                async with session.get(image_url) as resp:
+                    if resp.status != 200:
+                        return await ctx.send('画像のロードに失敗しちゃった!')
+                    data = io.BytesIO(await resp.read())
+                    await ctx.send(file=discord.File(data, arg))
+            await ctx.send(file=discord.File(image_url))
+        except Exception:
+            ctx.send("何かわかんないけど失敗しちゃった！")
 
 """
 @bot.event
