@@ -82,7 +82,8 @@ async def generate(ctx, *, arg):
                     await ctx.send(file=discord.File(data, arg.replace(" ", "_") + ".png"))
             await ctx.send(file=discord.File(image_url))
         except Exception:
-            ctx.send("何かわかんないけど失敗しちゃった！")
+            await ctx.send("何かわかんないけど失敗しちゃった！")
+            await ctx.send("`!generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
 
 """
 @bot.event
