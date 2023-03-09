@@ -98,10 +98,10 @@ async def normal(ctx):
 @bot.command()
 async def tsumugi(ctx):
     channel = channels[ctx.channel.id]
-    if channel.mode == Mode.chatgpt:
+    if channel.mode == Mode.tsumugi:
         return await ctx.send("もうつむつむモードだよ")
     else:
-        channel.mode = Mode.chatgpt
+        channel.mode = Mode.tsumugi
         return await ctx.send("つむつむモードに変更したよ")
 
 """
