@@ -5,7 +5,7 @@ import os
 import asyncio
 from dotenv import load_dotenv
 import openai
-from channel import Channel
+from channel import Channel, Mode
 import io
 import aiohttp
 
@@ -83,6 +83,26 @@ async def generate(ctx, *, arg):
         except Exception:
             await ctx.send("何かわかんないけど失敗しちゃった！")
             await ctx.send("`!generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
+
+
+@bot.command()
+async def normal(ctx):
+    channel = channels[ctx.channel.id]
+    if channel.mode == Mode.chatgpt:
+        return await ctx.send("既に現在ChatGPTモードです")
+    else:
+        channel.mode = Mode.chatgpt
+        return await ctx.send("ChatGPTモードに変更しました")
+
+
+@bot.command()
+async def tsumugi(ctx):
+    channel = channels[ctx.channel.id]
+    if channel.mode == Mode.chatgpt:
+        return await ctx.send("もうつむつむモードだよ")
+    else:
+        channel.mode = Mode.chatgpt
+        return await ctx.send("つむつむモードに変更したよ")
 
 """
 @bot.event

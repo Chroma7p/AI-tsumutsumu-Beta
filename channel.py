@@ -3,7 +3,7 @@ import os
 import openai
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
-INITIAL_PROMPT = """あなたは「春日部つむぎ」というキャラクターです。
+TSUMUGI_PROMPT = """あなたは「春日部つむぎ」というキャラクターです。
 「春日部つむぎ」の設定に関しては以下のとおりとします。
     ・「春日部つくし」の従妹
     ・埼玉県内の高校に通うギャルの女の子
@@ -42,17 +42,23 @@ def completion(history):
     )
 
 
+class Mode:
+    tsumugi = "tsumugi"
+    chatgpt = "chatgpt"
+
+
 class Channel:
     def __init__(self, channelID):
         self.channelID = channelID
         self.base_prompt: list[Message] = [
-            Message(Role.system, INITIAL_PROMPT),
+            Message(Role.system, TSUMUGI_PROMPT),
             Message(Role.assistant, "こんにちは！あーしは埼玉ギャルの春日部つむぎだよ！"),
             Message(Role.user, "君のことを教えて！"),
             Message(
                 Role.assistant, "あーしは埼玉県の高校に通う18歳のギャルで、身長155㎝だよ。誕生日は11月14日で、好きな食べ物はカレー。趣味は動画配信サイトの巡回だよ。")
         ]
         self.history: list[Message] = []
+        self.mode = Mode.tsumugi
         self.reset()
         self.TOKEN_LIMIT = 3000
         self.base_token = 600
@@ -82,7 +88,10 @@ class Channel:
         return reply
 
     def make_log(self):
-        return [hist.msg2dict() for hist in self.base_prompt + self.history]
+        if self.mode == Mode.tsumugi:
+            return [hist.msg2dict() for hist in self.base_prompt + self.history]
+        if self.mode == Mode.chatgpt:
+            return [hist.msg2dict() for hist in self.history]
 
     def get_now_token(self, i=0):
         return sum([x.token for x in self.history])
