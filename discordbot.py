@@ -92,6 +92,7 @@ async def normal(ctx):
         return await ctx.send("既に現在ChatGPTモードです")
     else:
         channel.mode = Mode.chatgpt
+        channel.reset()
         return await ctx.send("ChatGPTモードに変更しました")
 
 
@@ -102,6 +103,7 @@ async def tsumugi(ctx):
         return await ctx.send("もうつむつむモードだよ")
     else:
         channel.mode = Mode.tsumugi
+        channel.reset()
         return await ctx.send("つむつむモードに変更したよ")
 
 """
