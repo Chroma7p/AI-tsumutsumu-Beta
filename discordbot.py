@@ -121,6 +121,7 @@ async def on_ready():
     activity = discord.Activity(name='準備完了！')
     await bot.change_presence(activity=activity)
 """
+errmsg = "err:The server had an error processing your request."
 
 
 @bot.event
@@ -137,6 +138,8 @@ async def on_message(message):
             except Exception as e:
                 reply = f"err:{e}"
             finally:
+                if reply[:len(errmsg)] == errmsg:
+                    reply = "何かエラーが起こってるみたい、時間を空けてもう一度確かめてみてね"
                 for i in range(len(reply) // 1500 + 1):
                     await message.channel.send(reply[i * 1500:(i + 1) * 1500])
     # コマンド側にメッセージを渡して終了
