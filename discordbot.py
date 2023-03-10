@@ -11,7 +11,7 @@ import aiohttp
 import MeCab
 
 load_dotenv()
-m = MeCab.tagger()
+m = MeCab.Tagger()
 
 # デプロイ先の環境変数にトークンをおいてね
 APITOKEN = os.environ["DISCORD_BOT_TOKEN"]
