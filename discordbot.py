@@ -8,8 +8,10 @@ import openai
 from channel import Channel, Mode
 import io
 import aiohttp
+import MeCab
 
 load_dotenv()
+m = MeCab.tagger()
 
 # デプロイ先の環境変数にトークンをおいてね
 APITOKEN = os.environ["DISCORD_BOT_TOKEN"]
@@ -105,6 +107,12 @@ async def tsumugi(ctx):
         channel.mode = Mode.tsumugi
         channel.reset()
         return await ctx.send("つむつむモードに変更したよ")
+
+
+@bot.command()
+async def mecab(ctx, *, arg):
+    ctx.send(m.parse(arg))
+
 
 """
 @bot.event
