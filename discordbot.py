@@ -111,7 +111,7 @@ async def tsumugi(ctx):
 
 @bot.command()
 async def mecab(ctx, *, arg):
-    ctx.send(m.parse(arg))
+    await ctx.send(m.parse(arg))
 
 
 """
