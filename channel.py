@@ -48,8 +48,10 @@ class Mode:
 
 
 class Channel:
-    def __init__(self, channelID):
+    def __init__(self, channelID, mode=Mode.tsumugi, is_temporary=False):
         self.channelID = channelID
+        self.mode = mode
+
         self.base_prompt: list[Message] = [
             Message(Role.system, TSUMUGI_PROMPT),
             Message(Role.assistant, "こんにちは！あーしは埼玉ギャルの春日部つむぎだよ！"),
@@ -58,7 +60,7 @@ class Channel:
                 Role.assistant, "あーしは埼玉県の高校に通う18歳のギャルで、身長155㎝だよ。誕生日は11月14日で、好きな食べ物はカレー。趣味は動画配信サイトの巡回だよ。")
         ]
         self.history: list[Message] = []
-        self.mode = Mode.tsumugi
+        self.is_temporary = is_temporary
         self.reset()
         self.TOKEN_LIMIT = 3000
         self.base_token = 600

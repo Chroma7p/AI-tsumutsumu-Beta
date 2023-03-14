@@ -43,6 +43,25 @@ def is_question(message):
 
 
 @bot.command()
+async def join(ctx):
+    if ctx.channel.id in channels:
+        return await ctx.send("既に参加しているよ")
+
+    channels[ctx.channel.id] = Channel(ctx.channel.id, is_temporary=True)
+    return await ctx.send("こんちゃ！！")
+
+
+@bot.command()
+async def bye(ctx):
+    if ctx.channel.id in channels and channels[ctx.channel.id].is_temporary:
+
+        del channels[ctx.channel.id]
+        return await ctx.send("ばいばい！！")
+    else:
+        return await ctx.send("何らかの理由で退場できないよ！")
+
+
+@bot.command()
 async def reboot(ctx):
     channels[ctx.channel.id].reset()
     await ctx.send("リセットしたよ！")
@@ -90,6 +109,8 @@ async def generate(ctx, *, arg):
 @bot.command()
 async def normal(ctx):
     channel = channels[ctx.channel.id]
+    if channel.mode == Mode.temporary:
+        return await ctx.send("変更できません")
     if channel.mode == Mode.chatgpt:
         return await ctx.send("既に現在ChatGPTモードです")
     else:
@@ -101,6 +122,8 @@ async def normal(ctx):
 @bot.command()
 async def tsumugi(ctx):
     channel = channels[ctx.channel.id]
+    if channel.mode == Mode.temporary:
+        return await ctx.send("変更できません")
     if channel.mode == Mode.tsumugi:
         return await ctx.send("もうつむつむモードだよ")
     else:
@@ -140,8 +163,13 @@ async def on_message(message):
             finally:
                 if reply[:len(errmsg)] == errmsg:
                     reply = "何かエラーが起こってるみたい、時間を空けてもう一度確かめてみてね"
-                for i in range(len(reply) // 1500 + 1):
-                    await message.channel.send(reply[i * 1500:(i + 1) * 1500])
+                if channel.mode == "Temporary":
+                    for i in range(len(reply) // 90 + 1):
+                        await asyncio.sleep(5)
+                        await message.channel.send(reply[i * 1500:(i + 1) * 1500])
+                else:
+                    for i in range(len(reply) // 1500 + 1):
+                        await message.channel.send(reply[i * 1500:(i + 1) * 1500])
     # コマンド側にメッセージを渡して終了
     await bot.process_commands(message)
 
