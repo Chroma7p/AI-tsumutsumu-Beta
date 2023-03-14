@@ -19,7 +19,7 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 
 # botのオブジェクトを作成(コマンドのトリガーを!に)
 bot = commands.Bot(
-    command_prefix="!",
+    command_prefix="/",
     intents=discord.Intents.all(),
     # activity=discord.Activity(name="準備中")
 )
@@ -161,8 +161,8 @@ async def on_message(message):
             except Exception as e:
                 reply = f"err:{e}"
             finally:
-                if reply[:len(errmsg)] == errmsg:
-                    reply = "何かエラーが起こってるみたい、時間を空けてもう一度確かめてみてね"
+                if reply[:4] == "err:":
+                    reply = f"なにかエラーが起こってるみたい、なんかいろいろ書いとくから、開発者に見せてみて\n```{reply}```"
                 if channel.mode == "Temporary":
                     for i in range(len(reply) // 90 + 1):
                         await asyncio.sleep(5)
