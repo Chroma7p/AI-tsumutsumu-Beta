@@ -6,8 +6,6 @@ import asyncio
 from dotenv import load_dotenv
 import openai
 from channel import Channel, Mode
-import io
-import aiohttp
 import MeCab
 from discord import app_commands
 
@@ -105,15 +103,10 @@ async def generate(interaction, prompt: str):
                 size="512x512"
             )
             image_url = response['data'][0]['url']
-            async with aiohttp.ClientSession() as session:
-                async with session.get(image_url) as resp:
-                    if resp.status != 200:
-                        return await interaction.response.send_message('画像のロードに失敗しちゃった!')
-                    data = io.BytesIO(await resp.read())
-                    await interaction.response.send_message(file=discord.File(data, prompt.replace(" ", "_") + ".png"))
+            img: discord.Embed = discord.Embed(title=prompt, url=image_url)
+            await interaction.response.send_message(f"`{prompt}`で生成したよ!", embed=img)
         except Exception:
-            await interaction.response.send_message("何かわかんないけど失敗しちゃった！")
-            await interaction.response.send_message("`/generate rainbow cat`のように、コマンドのうしろに文字列を入れてね！")
+            await interaction.response.send_message("何かわかんないけど失敗しちゃった！\n/generate rainbow cat`のように、コマンドのうしろに文字列を入れてね！")
 
 
 @tree.command(name="normal", description="通常のChatGPTモードに切り替えるよ 会話ログは消えるよ")
