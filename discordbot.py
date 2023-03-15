@@ -181,7 +181,8 @@ async def on_message(message):
 async def main():
     # start the client
     async with bot:
-        await bot.start(APITOKEN)
         await tree.sync()
+        await bot.start(APITOKEN)
+
 
 asyncio.run(main())
