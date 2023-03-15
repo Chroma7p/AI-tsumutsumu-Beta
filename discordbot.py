@@ -104,7 +104,8 @@ async def generate(interaction, prompt: str):
                 size="512x512"
             )
             image_url = response['data'][0]['url']
-            img: discord.Embed = discord.Embed(title=prompt, url=image_url)
+            img: discord.Embed = discord.Embed(title=prompt)
+            img.set_image(url=image_url)
             print(image_url)
             await interaction.response.send_message(embed=img)
         except Exception:
