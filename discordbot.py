@@ -25,6 +25,8 @@ bot = commands.Bot(
     # activity=discord.Activity(name="準備中")
 )
 
+tree = bot.tree
+
 
 channels = {channel: Channel(channel) for channel in [
     985409309246644254, 1081461365694267453, 1082634484253466674]}
@@ -43,7 +45,7 @@ def is_question(message):
     return True
 
 
-@bot.command(name="join", description="臨時でチャンネルに参加するよ、しばらくたつと反応しなくなるよ")
+@tree.command(name="join", description="臨時でチャンネルに参加するよ、しばらくたつと反応しなくなるよ")
 async def join(ctx):
     if ctx.channel.id in channels:
         return await ctx.send("既に参加しているよ")
@@ -52,7 +54,7 @@ async def join(ctx):
     return await ctx.send("こんちゃ！！")
 
 
-@bot.command(name="bye", description="臨時で参加しているチャンネルから脱退するよ")
+@tree.command(name="bye", description="臨時で参加しているチャンネルから脱退するよ")
 async def bye(ctx):
     if ctx.channel.id in channels and channels[ctx.channel.id].is_temporary:
 
@@ -62,19 +64,19 @@ async def bye(ctx):
         return await ctx.send("何らかの理由で退場できないよ！")
 
 
-@bot.command(name="reset", description="そのチャンネルの会話ログをリセットするよ")
+@tree.command(name="reset", description="そのチャンネルの会話ログをリセットするよ")
 async def reboot(ctx):
     channels[ctx.channel.id].reset()
     await ctx.send("リセットしたよ！")
 
 
-@bot.command(name="token", description="現在のトークン消費状況を表示するよ")
+@tree.command(name="token", description="現在のトークン消費状況を表示するよ")
 async def token(ctx):
     channel = channels[ctx.channel.id]
     await ctx.send(f"現在の利用しているトークンの数は{channel.get_now_token()}だよ！\n{channel.TOKEN_LIMIT}に達すると古いログから削除されていくよ！")
 
 
-@bot.command(name="history", description="現在残っている会話ログを表示するよ")
+@tree.command(name="history", description="現在残っている会話ログを表示するよ")
 async def talk_history(ctx):
     channel = channels[ctx.channel.id]
     text = ""
@@ -84,7 +86,7 @@ async def talk_history(ctx):
     await ctx.send(text)
 
 
-@bot.command(name="generate", description="OpenAIのAPIにアクセスして画像を生成するよ")
+@tree.command(name="generate", description="OpenAIのAPIにアクセスして画像を生成するよ")
 @app_commands.describe(prompt="生成する画像を指定する文章を入力してね")
 async def generate(ctx, prompt):
     if prompt == "":
@@ -108,7 +110,7 @@ async def generate(ctx, prompt):
             await ctx.send("`/generate rainbow cat`のように、コマンドのうしろに文字列を入れてね！")
 
 
-@bot.command(name="normal", describe="通常のChatGPTモードに切り替えるよ 会話ログは消えるよ")
+@tree.command(name="normal", describe="通常のChatGPTモードに切り替えるよ 会話ログは消えるよ")
 async def normal(ctx):
     channel = channels[ctx.channel.id]
     if channel.mode == Mode.temporary:
@@ -121,7 +123,7 @@ async def normal(ctx):
         return await ctx.send("ChatGPTモードに変更しました")
 
 
-@bot.command(name="tsumugi", describe="つむつむモードに切り替えるよ 会話ログは消えるよ")
+@tree.command(name="tsumugi", describe="つむつむモードに切り替えるよ 会話ログは消えるよ")
 async def tsumugi(ctx):
     channel = channels[ctx.channel.id]
     if channel.mode == Mode.temporary:
@@ -134,7 +136,7 @@ async def tsumugi(ctx):
         return await ctx.send("つむつむモードに変更したよ")
 
 
-@bot.command(name="mecab", describe="mecabの導入が出来ているかのテストコマンドだよ 形態素解析できるよ")
+@tree.command(name="mecab", describe="mecabの導入が出来ているかのテストコマンドだよ 形態素解析できるよ")
 async def mecab(ctx, *, arg):
     await ctx.send(m.parse(arg))
 
@@ -180,5 +182,6 @@ async def main():
     # start the client
     async with bot:
         await bot.start(APITOKEN)
+        await tree.sync()
 
 asyncio.run(main())
