@@ -48,6 +48,7 @@ def is_question(message):
 
 @tree.command(name="join", description="臨時でチャンネルに参加するよ、しばらくたつと反応しなくなるよ")
 async def join(interaction):
+    await interaction.defer()
     if interaction.channel.id in channels:
         return await interaction.response.send_message("既に参加しているよ")
 
@@ -82,6 +83,8 @@ async def token(interaction):
 async def talk_history(interaction):
     channel = channels[interaction.channel.id]
     text = ""
+    if not channel.history:
+        return await interaction.response.send_message("会話ログはまだないよ！")
     for msg in channel.history:
         c = msg.content[:10].replace('\n', '')
         text += f"{msg.token}:{c}{'...' if len(msg.content)>10 else ''}\n"
@@ -94,6 +97,7 @@ async def generate(interaction, prompt: str):
     if prompt == "":
         await interaction.response.send_message("`/generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
     else:
+        await interaction.defer()
         try:
             response = openai.Image.create(
                 prompt=prompt,
