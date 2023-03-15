@@ -10,6 +10,9 @@ import io
 import aiohttp
 import MeCab
 
+from discord import app_commands
+
+
 load_dotenv()
 m = MeCab.Tagger()
 
@@ -23,6 +26,8 @@ bot = commands.Bot(
     intents=discord.Intents.all(),
     # activity=discord.Activity(name="準備中")
 )
+
+tree = app_commands.CommandTree(bot)
 
 
 channels = {channel: Channel(channel) for channel in [
@@ -42,7 +47,7 @@ def is_question(message):
     return True
 
 
-@bot.command()
+@tree.command(name="join", description="臨時でチャンネルに参加するよ、しばらくたつと反応しなくなるよ")
 async def join(ctx):
     if ctx.channel.id in channels:
         return await ctx.send("既に参加しているよ")
@@ -51,7 +56,7 @@ async def join(ctx):
     return await ctx.send("こんちゃ！！")
 
 
-@bot.command()
+@tree.command(name="bye", description="臨時で参加しているチャンネルから脱退するよ")
 async def bye(ctx):
     if ctx.channel.id in channels and channels[ctx.channel.id].is_temporary:
 
@@ -61,19 +66,19 @@ async def bye(ctx):
         return await ctx.send("何らかの理由で退場できないよ！")
 
 
-@bot.command()
+@tree.command(name="reset", description="そのチャンネルの会話ログをリセットするよ")
 async def reboot(ctx):
     channels[ctx.channel.id].reset()
     await ctx.send("リセットしたよ！")
 
 
-@bot.command()
+@tree.command(name="token", description="現在のトークン消費状況を表示するよ")
 async def token(ctx):
     channel = channels[ctx.channel.id]
     await ctx.send(f"現在の利用しているトークンの数は{channel.get_now_token()}だよ！\n{channel.TOKEN_LIMIT}に達すると古いログから削除されていくよ！")
 
 
-@bot.command()
+@tree.command(name="history", description="現在残っている会話ログを表示するよ")
 async def talk_history(ctx):
     channel = channels[ctx.channel.id]
     text = ""
@@ -83,14 +88,15 @@ async def talk_history(ctx):
     await ctx.send(text)
 
 
-@bot.command()
-async def generate(ctx, *, arg):
-    if arg == "":
-        await ctx.send("`!generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
+@tree.command(name="generate", description="OpenAIのAPIにアクセスして画像を生成するよ")
+@app_commands.describe(prompt="生成する画像を指定する文章を入力してね")
+async def generate(ctx, prompt):
+    if prompt == "":
+        await ctx.send("`/generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
     else:
         try:
             response = openai.Image.create(
-                prompt=arg,
+                prompt=prompt,
                 n=1,
                 size="512x512"
             )
@@ -100,13 +106,13 @@ async def generate(ctx, *, arg):
                     if resp.status != 200:
                         return await ctx.send('画像のロードに失敗しちゃった!')
                     data = io.BytesIO(await resp.read())
-                    await ctx.send(file=discord.File(data, arg.replace(" ", "_") + ".png"))
+                    await ctx.send(file=discord.File(data, prompt.replace(" ", "_") + ".png"))
         except Exception:
             await ctx.send("何かわかんないけど失敗しちゃった！")
-            await ctx.send("`!generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
+            await ctx.send("`/generate rainbow cat`のように、コマンドのうしろに文字列を入れてね！")
 
 
-@bot.command()
+@tree.command(name="normal", describe="通常のChatGPTモードに切り替えるよ 会話ログは消えるよ")
 async def normal(ctx):
     channel = channels[ctx.channel.id]
     if channel.mode == Mode.temporary:
@@ -119,7 +125,7 @@ async def normal(ctx):
         return await ctx.send("ChatGPTモードに変更しました")
 
 
-@bot.command()
+@tree.command(name="tsumugi", describe="つむつむモードに切り替えるよ 会話ログは消えるよ")
 async def tsumugi(ctx):
     channel = channels[ctx.channel.id]
     if channel.mode == Mode.temporary:
@@ -132,7 +138,7 @@ async def tsumugi(ctx):
         return await ctx.send("つむつむモードに変更したよ")
 
 
-@bot.command()
+@tree.command(name="mecab", describe="mecabの導入が出来ているかのテストコマンドだよ 形態素解析できるよ")
 async def mecab(ctx, *, arg):
     await ctx.send(m.parse(arg))
 
