@@ -88,7 +88,7 @@ async def talk_history(ctx):
 
 @tree.command(name="generate", description="OpenAIのAPIにアクセスして画像を生成するよ")
 @app_commands.describe(prompt="生成する画像を指定する文章を入力してね")
-async def generate(ctx, prompt):
+async def generate(ctx, prompt: str):
     if prompt == "":
         await ctx.send("`/generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
     else:
