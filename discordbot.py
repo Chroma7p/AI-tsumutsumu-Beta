@@ -110,7 +110,7 @@ async def generate(ctx, prompt: str):
             await ctx.send("`/generate rainbow cat`のように、コマンドのうしろに文字列を入れてね！")
 
 
-@tree.command(name="normal", describe="通常のChatGPTモードに切り替えるよ 会話ログは消えるよ")
+@tree.command(name="normal", description="通常のChatGPTモードに切り替えるよ 会話ログは消えるよ")
 async def normal(ctx):
     channel = channels[ctx.channel.id]
     if channel.mode == Mode.temporary:
@@ -123,7 +123,7 @@ async def normal(ctx):
         return await ctx.send("ChatGPTモードに変更しました")
 
 
-@tree.command(name="tsumugi", describe="つむつむモードに切り替えるよ 会話ログは消えるよ")
+@tree.command(name="tsumugi", description="つむつむモードに切り替えるよ 会話ログは消えるよ")
 async def tsumugi(ctx):
     channel = channels[ctx.channel.id]
     if channel.mode == Mode.temporary:
@@ -136,7 +136,7 @@ async def tsumugi(ctx):
         return await ctx.send("つむつむモードに変更したよ")
 
 
-@tree.command(name="mecab", describe="mecabの導入が出来ているかのテストコマンドだよ 形態素解析できるよ")
+@tree.command(name="mecab", description="mecabの導入が出来ているかのテストコマンドだよ 形態素解析できるよ")
 async def mecab(ctx, *, arg):
     await ctx.send(m.parse(arg))
 
