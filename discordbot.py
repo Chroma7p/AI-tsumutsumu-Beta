@@ -141,13 +141,11 @@ async def mecab(ctx, arg: str):
     await ctx.send(m.parse(arg))
 
 
-"""
 @bot.event
 # botの起動が完了したとき
 async def on_ready():
-    activity = discord.Activity(name='準備完了！')
-    await bot.change_presence(activity=activity)
-"""
+    await tree.sync()
+
 errmsg = "err:The server had an error processing your request."
 
 
@@ -181,7 +179,7 @@ async def on_message(message):
 async def main():
     # start the client
     async with bot:
-        await tree.sync()
+
         await bot.start(APITOKEN)
 
 
