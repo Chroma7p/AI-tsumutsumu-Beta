@@ -38,7 +38,7 @@ def is_question(message):
     if message.author.bot:
         return False
     # コマンドや二重スラッシュは無視
-    if message.content[:2] == "//" or message.content[0] == "!":
+    if message.content[:2] == "//" or message.content[0] == "/":
         return False
     return True
 
