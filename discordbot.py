@@ -149,8 +149,8 @@ async def mecab(interaction, arg: str):
 
 @tree.command(name="test", description="スラッシュコマンドが機能しているかのテスト用コマンドだよ")
 async def test(interaction):
-    print("ちゃろ～！")
-    await interaction.response.send_message("ちゃろ～！！")
+    print("ちゃろ～☆")
+    await interaction.response.send_message("ちゃろ～☆")
 
 
 @bot.event
