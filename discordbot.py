@@ -20,7 +20,6 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 
 # botのオブジェクトを作成(コマンドのトリガーを!に)
 bot = commands.Bot(
-    command_prefix="/?",
     intents=discord.Intents.all(),
     # activity=discord.Activity(name="準備中")
 )
