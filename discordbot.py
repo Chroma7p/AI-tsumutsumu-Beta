@@ -47,51 +47,52 @@ def is_question(message):
 
 
 @tree.command(name="join", description="臨時でチャンネルに参加するよ、しばらくたつと反応しなくなるよ")
-async def join(ctx):
-    if ctx.channel.id in channels:
-        return await ctx.send("既に参加しているよ")
+async def join(interaction):
+    if interaction.channel.id in channels:
+        return await interaction.response.send_message("既に参加しているよ")
 
-    channels[ctx.channel.id] = Channel(ctx.channel.id, is_temporary=True)
-    return await ctx.send("こんちゃ！！")
+    channels[interaction.channel.id] = Channel(
+        interaction.channel.id, is_temporary=True)
+    return await interaction.response.send_message_message("こんちゃ！！")
 
 
 @tree.command(name="bye", description="臨時で参加しているチャンネルから脱退するよ")
-async def bye(ctx):
-    if ctx.channel.id in channels and channels[ctx.channel.id].is_temporary:
+async def bye(interaction):
+    if interaction.channel.id in channels and channels[interaction.channel.id].is_temporary:
 
-        del channels[ctx.channel.id]
-        return await ctx.send("ばいばい！！")
+        del channels[interaction.channel.id]
+        return await interaction.response.send_message("ばいばい！！")
     else:
-        return await ctx.send("何らかの理由で退場できないよ！")
+        return await interaction.response.send_message("何らかの理由で退場できないよ！")
 
 
 @tree.command(name="reset", description="そのチャンネルの会話ログをリセットするよ")
-async def reboot(ctx):
-    channels[ctx.channel.id].reset()
-    await ctx.send("リセットしたよ！")
+async def reboot(interaction):
+    channels[interaction.channel.id].reset()
+    await interaction.response.send_message("リセットしたよ！")
 
 
 @tree.command(name="token", description="現在のトークン消費状況を表示するよ")
-async def token(ctx):
-    channel = channels[ctx.channel.id]
-    await ctx.send(f"現在の利用しているトークンの数は{channel.get_now_token()}だよ！\n{channel.TOKEN_LIMIT}に達すると古いログから削除されていくよ！")
+async def token(interaction):
+    channel = channels[interaction.channel.id]
+    await interaction.response.send_message(f"現在の利用しているトークンの数は{channel.get_now_token()}だよ！\n{channel.TOKEN_LIMIT}に達すると古いログから削除されていくよ！")
 
 
 @tree.command(name="history", description="現在残っている会話ログを表示するよ")
-async def talk_history(ctx):
-    channel = channels[ctx.channel.id]
+async def talk_history(interaction):
+    channel = channels[interaction.channel.id]
     text = ""
     for msg in channel.history:
         c = msg.content[:10].replace('\n', '')
         text += f"{msg.token}:{c}{'...' if len(msg.content)>10 else ''}\n"
-    await ctx.send(text)
+    await interaction.response.send_message(text)
 
 
 @tree.command(name="generate", description="OpenAIのAPIにアクセスして画像を生成するよ")
 @app_commands.describe(prompt="生成する画像を指定する文章を入力してね")
-async def generate(ctx, prompt: str):
+async def generate(interaction, prompt: str):
     if prompt == "":
-        await ctx.send("`/generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
+        await interaction.response.send_message("`/generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
     else:
         try:
             response = openai.Image.create(
@@ -103,43 +104,49 @@ async def generate(ctx, prompt: str):
             async with aiohttp.ClientSession() as session:
                 async with session.get(image_url) as resp:
                     if resp.status != 200:
-                        return await ctx.send('画像のロードに失敗しちゃった!')
+                        return await interaction.response.send_message('画像のロードに失敗しちゃった!')
                     data = io.BytesIO(await resp.read())
-                    await ctx.send(file=discord.File(data, prompt.replace(" ", "_") + ".png"))
+                    await interaction.response.send_message(file=discord.File(data, prompt.replace(" ", "_") + ".png"))
         except Exception:
-            await ctx.send("何かわかんないけど失敗しちゃった！")
-            await ctx.send("`/generate rainbow cat`のように、コマンドのうしろに文字列を入れてね！")
+            await interaction.response.send_message("何かわかんないけど失敗しちゃった！")
+            await interaction.response.send_message("`/generate rainbow cat`のように、コマンドのうしろに文字列を入れてね！")
 
 
 @tree.command(name="normal", description="通常のChatGPTモードに切り替えるよ 会話ログは消えるよ")
-async def normal(ctx):
-    channel = channels[ctx.channel.id]
+async def normal(interaction):
+    channel = channels[interaction.channel.id]
     if channel.mode == Mode.temporary:
-        return await ctx.send("変更できません")
+        return await interaction.response.send_message("変更できません")
     if channel.mode == Mode.chatgpt:
-        return await ctx.send("既に現在ChatGPTモードです")
+        return await interaction.response.send_message("既に現在ChatGPTモードです")
     else:
         channel.mode = Mode.chatgpt
         channel.reset()
-        return await ctx.send("ChatGPTモードに変更しました")
+        return await interaction.response.send_message("ChatGPTモードに変更しました")
 
 
 @tree.command(name="tsumugi", description="つむつむモードに切り替えるよ 会話ログは消えるよ")
-async def tsumugi(ctx):
-    channel = channels[ctx.channel.id]
+async def tsumugi(interaction):
+    channel = channels[interaction.channel.id]
     if channel.mode == Mode.temporary:
-        return await ctx.send("変更できません")
+        return await interaction.response.send_message("変更できません")
     if channel.mode == Mode.tsumugi:
-        return await ctx.send("もうつむつむモードだよ")
+        return await interaction.response.send_message("もうつむつむモードだよ")
     else:
         channel.mode = Mode.tsumugi
         channel.reset()
-        return await ctx.send("つむつむモードに変更したよ")
+        return await interaction.response.send_message("つむつむモードに変更したよ")
 
 
 @tree.command(name="mecab", description="mecabの導入が出来ているかのテストコマンドだよ 形態素解析できるよ")
-async def mecab(ctx, arg: str):
-    await ctx.send(m.parse(arg))
+async def mecab(interaction, arg: str):
+    await interaction.response.send_message(m.parse(arg))
+
+
+@tree.command(name="test", description="スラッシュコマンドが機能しているかのテスト用コマンドだよ")
+async def test(interaction):
+    print("ちゃろ～！")
+    await interaction.response.send_message("ちゃろ～！！")
 
 
 @bot.event
