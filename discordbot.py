@@ -106,7 +106,7 @@ async def generate(interaction, prompt: str):
             image_url = response['data'][0]['url']
             img: discord.Embed = discord.Embed(title=prompt, url=image_url)
             print(image_url)
-            await interaction.response.send_message(f"`{prompt}`で生成したよ!", embed=img)
+            await interaction.response.send_message(embed=img)
         except Exception:
             await interaction.response.send_message("何かわかんないけど失敗しちゃった！\n/generate rainbow cat`のように、コマンドのうしろに文字列を入れてね！")
 
