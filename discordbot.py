@@ -48,7 +48,7 @@ def is_question(message):
 
 @tree.command(name="join", description="臨時でチャンネルに参加するよ、しばらくたつと反応しなくなるよ")
 async def join(interaction):
-    await interaction.defer()
+    await interaction.response.defer()
     if interaction.channel.id in channels:
         return await interaction.response.send_message("既に参加しているよ")
 
@@ -97,7 +97,7 @@ async def generate(interaction, prompt: str):
     if prompt == "":
         await interaction.response.send_message("`/generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
     else:
-        await interaction.defer()
+        await interaction.response.defer()
         try:
             response = openai.Image.create(
                 prompt=prompt,
