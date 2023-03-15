@@ -104,7 +104,7 @@ async def generate(interaction, prompt: str):
                 size="512x512"
             )
             image_url = response['data'][0]['url']
-            img: discord.Embed = discord.Embed(title=prompt)
+            img: discord.Embed = discord.Embed(title=prompt, color=0xffffff)
             img.set_image(url=image_url)
             print(image_url)
             await interaction.response.send_message(embed=img)
