@@ -92,6 +92,7 @@ async def talk_history(interaction):
 @tree.command(name="generate", description="OpenAIのAPIにアクセスして画像を生成するよ")
 @app_commands.describe(prompt="生成する画像を指定する文章を入力してね")
 async def generate(interaction, prompt: str):
+    print(f"prompt:'{prompt}'")
     if prompt == "":
         await interaction.response.send_message("`/generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
     else:
@@ -104,6 +105,7 @@ async def generate(interaction, prompt: str):
             )
             image_url = response['data'][0]['url']
             img: discord.Embed = discord.Embed(title=prompt, url=image_url)
+            print(image_url)
             await interaction.response.send_message(f"`{prompt}`で生成したよ!", embed=img)
         except Exception:
             await interaction.response.send_message("何かわかんないけど失敗しちゃった！\n/generate rainbow cat`のように、コマンドのうしろに文字列を入れてね！")
