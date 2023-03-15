@@ -45,18 +45,18 @@ def is_question(message):
 
 
 @tree.command(name="join", description="臨時でチャンネルに参加するよ、しばらくたつと反応しなくなるよ")
-async def join(interaction):
+async def join(interaction: discord.Interaction):
     await interaction.response.defer()
     if interaction.channel.id in channels:
-        return await interaction.response.send_message("既に参加しているよ")
+        return await interaction.followup.send("既に参加しているよ")
 
     channels[interaction.channel.id] = Channel(
         interaction.channel.id, is_temporary=True)
-    return await interaction.response.send_message_message("こんちゃ！！")
+    return await interaction.followup.send("こんちゃ！！")
 
 
 @tree.command(name="bye", description="臨時で参加しているチャンネルから脱退するよ")
-async def bye(interaction):
+async def bye(interaction: discord.Interaction):
     if interaction.channel.id in channels and channels[interaction.channel.id].is_temporary:
 
         del channels[interaction.channel.id]
@@ -66,19 +66,19 @@ async def bye(interaction):
 
 
 @tree.command(name="reset", description="そのチャンネルの会話ログをリセットするよ")
-async def reboot(interaction):
+async def reboot(interaction: discord.Interaction):
     channels[interaction.channel.id].reset()
     await interaction.response.send_message("リセットしたよ！")
 
 
 @tree.command(name="token", description="現在のトークン消費状況を表示するよ")
-async def token(interaction):
+async def token(interaction: discord.Interaction):
     channel = channels[interaction.channel.id]
     await interaction.response.send_message(f"現在の利用しているトークンの数は{channel.get_now_token()}だよ！\n{channel.TOKEN_LIMIT}に達すると古いログから削除されていくよ！")
 
 
 @tree.command(name="history", description="現在残っている会話ログを表示するよ")
-async def talk_history(interaction):
+async def talk_history(interaction: discord.Interaction):
     channel = channels[interaction.channel.id]
     text = ""
     if not channel.history:
@@ -91,7 +91,7 @@ async def talk_history(interaction):
 
 @tree.command(name="generate", description="OpenAIのAPIにアクセスして画像を生成するよ")
 @app_commands.describe(prompt="生成する画像を指定する文章を入力してね")
-async def generate(interaction, prompt: str):
+async def generate(interaction: discord.Interaction, prompt: str):
     print(f"prompt:'{prompt}'")
     if prompt == "":
         await interaction.response.send_message("`/generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
@@ -107,13 +107,13 @@ async def generate(interaction, prompt: str):
             img: discord.Embed = discord.Embed(title=prompt, color=0xffffff)
             img.set_image(url=image_url)
             print(image_url)
-            await interaction.response.send_message(embed=img)
+            await interaction.followup.send(embed=img)
         except Exception:
-            await interaction.response.send_message("何かわかんないけど失敗しちゃった！\n/generate rainbow cat`のように、コマンドのうしろに文字列を入れてね！")
+            await interaction.followup.send("何かわかんないけど失敗しちゃった！\n/generate rainbow cat`のように、コマンドのうしろに文字列を入れてね！")
 
 
 @tree.command(name="normal", description="通常のChatGPTモードに切り替えるよ 会話ログは消えるよ")
-async def normal(interaction):
+async def normal(interaction: discord.Interaction):
     channel = channels[interaction.channel.id]
     if channel.mode == Mode.temporary:
         return await interaction.response.send_message("変更できません")
@@ -126,7 +126,7 @@ async def normal(interaction):
 
 
 @tree.command(name="tsumugi", description="つむつむモードに切り替えるよ 会話ログは消えるよ")
-async def tsumugi(interaction):
+async def tsumugi(interaction: discord.Interaction):
     channel = channels[interaction.channel.id]
     if channel.mode == Mode.temporary:
         return await interaction.response.send_message("変更できません")
@@ -139,7 +139,7 @@ async def tsumugi(interaction):
 
 
 @tree.command(name="mecab", description="mecabの導入が出来ているかのテストコマンドだよ 形態素解析できるよ")
-async def mecab(interaction, arg: str):
+async def mecab(interaction: discord.Interaction, arg: str):
     await interaction.response.send_message(m.parse(arg))
 
 
