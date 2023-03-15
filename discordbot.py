@@ -22,6 +22,7 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 bot = commands.Bot(
     command_prefix="/",
     intents=discord.Intents.all(),
+    application_id=1081421405259825182
     # activity=discord.Activity(name="準備中")
 )
 
