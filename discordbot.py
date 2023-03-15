@@ -9,7 +9,7 @@ from channel import Channel, Mode
 import io
 import aiohttp
 import MeCab
-
+from discord import app_commands
 
 load_dotenv()
 m = MeCab.Tagger()
