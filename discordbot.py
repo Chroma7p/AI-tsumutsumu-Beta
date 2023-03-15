@@ -137,7 +137,7 @@ async def tsumugi(ctx):
 
 
 @tree.command(name="mecab", description="mecabの導入が出来ているかのテストコマンドだよ 形態素解析できるよ")
-async def mecab(ctx, *, arg):
+async def mecab(ctx, arg: str):
     await ctx.send(m.parse(arg))
 
 
