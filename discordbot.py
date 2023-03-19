@@ -57,7 +57,7 @@ async def join(interaction: discord.Interaction):
 
 @tree.command(name="bye", description="臨時で参加しているチャンネルから脱退するよ")
 async def bye(interaction: discord.Interaction):
-    if interaction.channel.id in channels and channels[interaction.channel.id].is_temporary:
+    if interaction.channel.id not in channels and channels[interaction.channel.id].is_temporary:
 
         del channels[interaction.channel.id]
         return await interaction.response.send_message("ばいばい！！")
@@ -159,7 +159,7 @@ errmsg = "err:The server had an error processing your request."
 @bot.event
 async def on_message(message):
     if is_question(message):
-        with message.channel.typing():
+        async with message.channel.typing():
             channel = channels[message.channel.id]
             try:
                 reply = channel.send(message.content)
