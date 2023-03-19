@@ -159,26 +159,26 @@ errmsg = "err:The server had an error processing your request."
 @bot.event
 async def on_message(message):
     if is_question(message):
-        async with message.channel.typing():
-            channel = channels[message.channel.id]
-            try:
-                reply = channel.send(message.content)
-            # APIの応答エラーを拾う
-            except openai.error.InvalidRequestError:
-                channel.reset()
-                reply = "情報の取得に失敗したみたい\n会話ログを削除するからもう一回試してみてね"
-            except Exception as e:
-                reply = f"err:{e}"
-            finally:
-                if reply[:4] == "err:":
-                    reply = f"なにかエラーが起こってるみたい、なんかいろいろ書いとくから、開発者に見せてみて\n```{reply}```"
-                if channel.mode == "Temporary":
-                    for i in range(len(reply) // 90 + 1):
-                        await asyncio.sleep(5)
-                        await message.channel.send(reply[i * 1500:(i + 1) * 1500])
-                else:
-                    for i in range(len(reply) // 1500 + 1):
-                        await message.channel.send(reply[i * 1500:(i + 1) * 1500])
+        message.channel.typing()
+        channel = channels[message.channel.id]
+        try:
+            reply = channel.send(message.content)
+        # APIの応答エラーを拾う
+        except openai.error.InvalidRequestError:
+            channel.reset()
+            reply = "情報の取得に失敗したみたい\n会話ログを削除するからもう一回試してみてね"
+        except Exception as e:
+            reply = f"err:{e}"
+        finally:
+            if reply[:4] == "err:":
+                reply = f"なにかエラーが起こってるみたい、なんかいろいろ書いとくから、開発者に見せてみて\n```{reply}```"
+            if channel.mode == "Temporary":
+                for i in range(len(reply) // 90 + 1):
+                    await asyncio.sleep(5)
+                    await message.channel.send(reply[i * 1500:(i + 1) * 1500])
+            else:
+                for i in range(len(reply) // 1500 + 1):
+                    await message.channel.send(reply[i * 1500:(i + 1) * 1500])
     # コマンド側にメッセージを渡して終了
     await bot.process_commands(message)
 
