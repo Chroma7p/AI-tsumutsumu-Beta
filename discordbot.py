@@ -3,14 +3,14 @@ from discord.ext import commands
 import discord
 import os
 import asyncio
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import openai
 from channel import Channel, Mode
-import MeCab
+# import MeCab
 from discord import app_commands
 
-load_dotenv()
-m = MeCab.Tagger()
+# load_dotenv()
+# m = MeCab.Tagger()
 
 # デプロイ先の環境変数にトークンをおいてね
 APITOKEN = os.environ["DISCORD_BOT_TOKEN"]
@@ -139,7 +139,8 @@ async def tsumugi(interaction: discord.Interaction):
 
 @tree.command(name="mecab", description="mecabの導入が出来ているかのテストコマンドだよ 形態素解析できるよ")
 async def mecab(interaction: discord.Interaction, arg: str):
-    await interaction.response.send_message(m.parse(arg))
+    # await interaction.response.send_message(m.parse(arg))
+    await interaction.response.send_message("工事中！ごめんね！")
 
 
 @tree.command(name="test", description="スラッシュコマンドが機能しているかのテスト用コマンドだよ")
@@ -159,26 +160,26 @@ errmsg = "err:The server had an error processing your request."
 @bot.event
 async def on_message(message):
     if is_question(message):
-        message.channel.typing()
-        channel = channels[message.channel.id]
-        try:
-            reply = channel.send(message.content)
-        # APIの応答エラーを拾う
-        except openai.error.InvalidRequestError:
-            channel.reset()
-            reply = "情報の取得に失敗したみたい\n会話ログを削除するからもう一回試してみてね"
-        except Exception as e:
-            reply = f"err:{e}"
-        finally:
-            if reply[:4] == "err:":
-                reply = f"なにかエラーが起こってるみたい、なんかいろいろ書いとくから、開発者に見せてみて\n```{reply}```"
-            if channel.mode == "Temporary":
-                for i in range(len(reply) // 90 + 1):
-                    await asyncio.sleep(5)
-                    await message.channel.send(reply[i * 1500:(i + 1) * 1500])
-            else:
-                for i in range(len(reply) // 1500 + 1):
-                    await message.channel.send(reply[i * 1500:(i + 1) * 1500])
+        async with message.channel.typing():
+            channel = channels[message.channel.id]
+            try:
+                reply = channel.send(message.content)
+            # APIの応答エラーを拾う
+            except openai.error.InvalidRequestError:
+                channel.reset()
+                reply = "情報の取得に失敗したみたい\n会話ログを削除するからもう一回試してみてね"
+            except Exception as e:
+                reply = f"err:{e}"
+            finally:
+                if reply[:4] == "err:":
+                    reply = f"なにかエラーが起こってるみたい、なんかいろいろ書いとくから、開発者に見せてみて\n```{reply}```"
+                if channel.mode == "Temporary":
+                    for i in range(len(reply) // 90 + 1):
+                        await asyncio.sleep(5)
+                        await message.channel.send(reply[i * 1500:(i + 1) * 1500])
+                else:
+                    for i in range(len(reply) // 1500 + 1):
+                        await message.channel.send(reply[i * 1500:(i + 1) * 1500])
     # コマンド側にメッセージを渡して終了
     await bot.process_commands(message)
 
@@ -186,7 +187,6 @@ async def on_message(message):
 async def main():
     # start the client
     async with bot:
-
         await bot.start(APITOKEN)
 
 
