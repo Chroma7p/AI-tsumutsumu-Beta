@@ -28,7 +28,7 @@ tree = bot.tree
 
 
 channels = {channel: Channel(channel) for channel in [
-    985409309246644254, 1081461365694267453, 1082634484253466674]}
+    985409309246644254, 1081461365694267453, 1082634484253466674, 1086592344410828861]}
 
 
 def is_question(message):
@@ -96,6 +96,7 @@ async def generate(interaction: discord.Interaction, prompt: str):
     if prompt == "":
         await interaction.response.send_message("`/generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
     else:
+        #  考え中にする 送信するときはinteraction.followupを使う
         await interaction.response.defer()
         try:
             response = openai.Image.create(
@@ -114,28 +115,26 @@ async def generate(interaction: discord.Interaction, prompt: str):
 
 @tree.command(name="normal", description="通常のChatGPTモードに切り替えるよ 会話ログは消えるよ")
 async def normal(interaction: discord.Interaction):
+    await interaction.response.defer()
     channel = channels[interaction.channel.id]
-    if channel.mode == Mode.temporary:
-        return await interaction.response.send_message("変更できません")
     if channel.mode == Mode.chatgpt:
-        return await interaction.response.send_message("既に現在ChatGPTモードです")
+        return await interaction.followup.send("既に現在ChatGPTモードです")
     else:
         channel.mode = Mode.chatgpt
         channel.reset()
-        return await interaction.response.send_message("ChatGPTモードに変更しました")
+        return await interaction.followup.send("ChatGPTモードに変更しました")
 
 
 @tree.command(name="tsumugi", description="つむつむモードに切り替えるよ 会話ログは消えるよ")
 async def tsumugi(interaction: discord.Interaction):
+    await interaction.response.defer()
     channel = channels[interaction.channel.id]
-    if channel.mode == Mode.temporary:
-        return await interaction.response.send_message("変更できません")
     if channel.mode == Mode.tsumugi:
-        return await interaction.response.send_message("もうつむつむモードだよ")
+        return await interaction.followup.send("もうつむつむモードだよ")
     else:
         channel.mode = Mode.tsumugi
         channel.reset()
-        return await interaction.response.send_message("つむつむモードに変更したよ")
+        return await interaction.followup.send("つむつむモードに変更したよ")
 
 
 @tree.command(name="mecab", description="mecabの導入が出来ているかのテストコマンドだよ 形態素解析できるよ")
@@ -160,7 +159,7 @@ errmsg = "err:The server had an error processing your request."
 @bot.event
 async def on_message(message):
     if is_question(message):
-        async with message.channel.typing():
+        with message.channel.typing():
             channel = channels[message.channel.id]
             try:
                 reply = channel.send(message.content)
