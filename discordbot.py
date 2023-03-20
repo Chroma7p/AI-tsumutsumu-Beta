@@ -57,12 +57,13 @@ async def join(interaction: discord.Interaction):
 
 @tree.command(name="bye", description="臨時で参加しているチャンネルから脱退するよ")
 async def bye(interaction: discord.Interaction):
+    await interaction.response.defer()
     if interaction.channel.id not in channels and channels[interaction.channel.id].is_temporary:
 
         del channels[interaction.channel.id]
-        return await interaction.response.send_message("ばいばい！！")
+        return await interaction.followup.send("ばいばい！！")
     else:
-        return await interaction.response.send_message("何らかの理由で退場できないよ！")
+        return await interaction.followup.send("何らかの理由で退場できないよ！")
 
 
 @tree.command(name="reset", description="そのチャンネルの会話ログをリセットするよ")
