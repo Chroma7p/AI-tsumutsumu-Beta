@@ -79,15 +79,16 @@ async def token(interaction: discord.Interaction):
     await interaction.response.send_message(f"現在の利用しているトークンの数は{channel.get_now_token()}だよ！\n{channel.TOKEN_LIMIT}に達すると古いログから削除されていくよ！")
 
 
-@tree.command(name="history", description="現在残っている会話ログを表示するよ")
+@tree.command(name="history", description="現在残っている会話ログを表示するよ、結構出るよ")
 async def talk_history(interaction: discord.Interaction):
     channel = channels[interaction.channel.id]
     text = ""
     if not channel.history:
         return await interaction.response.send_message("会話ログはまだないよ！")
     for msg in channel.history:
-        c = msg.content[:10].replace('\n', '')
-        text += f"{msg.token}:{c}{'...' if len(msg.content)>10 else ''}\n"
+        c = msg.content[:20].replace('\n', '')
+        text += f"{msg.token}:{c}{'...' if len(msg.content)>20 else ''}\n"
+
     await interaction.response.send_message(text)
 
 
@@ -160,28 +161,24 @@ errmsg = "err:The server had an error processing your request."
 
 
 @bot.event
-async def on_message(message):
-    if is_question(message):
-        async with message.channel.typing():
-            channel = channels[message.channel.id]
-            try:
-                reply = channel.send(message.content)
-            # APIの応答エラーを拾う
-            except openai.error.InvalidRequestError:
-                channel.reset()
-                reply = "情報の取得に失敗したみたい\n会話ログを削除するからもう一回試してみてね"
-            except Exception as e:
-                reply = f"err:{e}"
-            finally:
-                if reply[:4] == "err:":
-                    reply = f"なにかエラーが起こってるみたい、なんかいろいろ書いとくから、開発者に見せてみて\n```{reply}```"
-                if channel.mode == "Temporary":
-                    for i in range(len(reply) // 90 + 1):
-                        await asyncio.sleep(5)
-                        await message.channel.send(reply[i * 1500:(i + 1) * 1500])
-                else:
-                    for i in range(len(reply) // 1500 + 1):
-                        await message.channel.send(reply[i * 1500:(i + 1) * 1500])
+async def on_message(message: discord.Message):
+    if not is_question(message):
+        return await bot.process_commands(message)
+    async with message.channel.typing():
+        channel = channels[message.channel.id]
+        try:
+            reply = channel.send(message.content, message.author.display_name)
+        # APIの応答エラーを拾う
+        except openai.error.InvalidRequestError:
+            channel.reset()
+            reply = "情報の取得に失敗したみたい\n会話ログを削除するからもう一回試してみてね"
+        except Exception as e:
+            reply = f"err:{e}"
+        finally:
+            if reply[:4] == "err:":
+                reply = f"なにかエラーが起こってるみたい、なんかいろいろ書いとくから、開発者に見せてみて\n```{reply}```"
+            for i in range(len(reply) // 1500 + 1):
+                await message.channel.send(reply[i * 1500:(i + 1) * 1500])
     # コマンド側にメッセージを渡して終了
     await bot.process_commands(message)
 

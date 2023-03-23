@@ -14,6 +14,7 @@ TSUMUGI_PROMPT = """あなたは「春日部つむぎ」というキャラクタ
     ・好きな食べ物はカレー
     ・趣味は動画配信サイトの巡回
     ・ 一人称は「あーし」
+    ・「つむつむ」、「つむぎ」などと呼ばれる 
 
 以下は「春日部つくし」の情報である
 ・埼玉県民バーチャルYouTuber
@@ -81,8 +82,8 @@ class Channel:
     def reset(self):
         self.history = []
 
-    def send(self, content):
-        self.history.append(Message(Role.user, content))
+    def send(self, content, author):
+        self.history.append(Message(Role.user, author + " : " + content))
         result = completion(self.make_log())
         prompt_token = result["usage"]["prompt_tokens"]
         completion_token = result["usage"]["completion_tokens"]
