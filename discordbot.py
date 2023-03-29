@@ -31,16 +31,23 @@ channels = {channel: Channel(channel) for channel in [
     985409309246644254, 1081461365694267453, 1082634484253466674, 1086592344410828861]}
 
 
-def is_question(message):
-    # チャンネルIDが該当しない場合の排除
-    if message.channel.id not in channels:
-        return False
-    # メッセージ主がボットなら排除
-    if message.author.bot:
-        return False
+def is_question(message: discord.Message):
     # コマンドや二重スラッシュは無視
     if message.content[:2] == "//" or message.content[0] == "/":
         return False
+    # チャンネルIDが該当しない場合の排除
+    if message.channel.id not in channels:
+        return False
+    # 自分自身の排除
+    if message.author.id == bot.user.id:
+        return False
+    # ボット許可
+    if channels[message.channel.id].unconditional:
+        return True
+    # メッセージ主がボットなら排除
+    if message.author.bot:
+        return False
+
     return True
 
 
@@ -150,6 +157,27 @@ async def mecab(interaction: discord.Interaction, arg: str):
 async def test(interaction):
     print("ちゃろ～☆")
     await interaction.response.send_message("ちゃろ～☆")
+
+
+@tree.command(name="allow", description="botとの会話を許可するよ、ボット相手に無限に話す可能性があるから注意！")
+async def allow(interaction: discord.Interaction):
+    channel = channels[interaction.channel.id]
+    if channel.unconditional:
+        return await interaction.response.send_message("既に許可されているよ")
+    else:
+        channel.set_unconditional(True)
+        return await interaction.response.send_message("会話対象を無条件にしたよ")
+
+
+@tree.command(name="disallow", description="ボットとの会話の許可を取り消すよ")
+async def disallow(interaction: discord.Interaction):
+    channel = channels[interaction.channel.id]
+    if channel.unconditional:
+        channel.set_unconditional(False)
+        return await interaction.response.send_message("会話対象の設定を元に戻したよ")
+    else:
+
+        return await interaction.response.send_message("元々許可されていないよ")
 
 
 @bot.event

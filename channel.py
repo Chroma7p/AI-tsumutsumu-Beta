@@ -52,7 +52,7 @@ class Mode:
 
 
 class Channel:
-    def __init__(self, channelID, mode=Mode.tsumugi, is_temporary=False):
+    def __init__(self, channelID, mode=Mode.tsumugi, is_temporary=False, unconditional=False):
         self.channelID = channelID
         self.mode = mode
 
@@ -69,6 +69,7 @@ class Channel:
         self.is_temporary = is_temporary
         self.reset()
         self.TOKEN_LIMIT = 3000
+        self.unconditional = unconditional
         self.base_token = 600
         self.get_base_token()
 
@@ -81,6 +82,9 @@ class Channel:
 
     def reset(self):
         self.history = []
+
+    def set_unconditional(self, flag: bool):
+        self.unconditional = flag
 
     def send(self, content, author):
         self.history.append(Message(Role.user, author + " : " + content))
