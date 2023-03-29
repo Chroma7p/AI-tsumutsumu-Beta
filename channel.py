@@ -41,7 +41,7 @@ TSUMUGI_PROMPT = """あなたは「春日部つむぎ」というキャラクタ
 
 def completion(history):
     return openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=history
     )
 
