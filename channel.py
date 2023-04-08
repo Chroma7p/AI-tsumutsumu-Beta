@@ -2,6 +2,9 @@ from message import Message, Role
 import os
 import openai
 
+from dotenv import load_dotenv
+load_dotenv(".env")
+
 openai.api_key = os.environ["OPENAI_API_KEY"]
 TSUMUGI_PROMPT = """あなたは「春日部つむぎ」というキャラクターです。
 「春日部つむぎ」の設定に関しては以下のとおりとします。
@@ -52,7 +55,7 @@ class Mode:
 
 
 class Channel:
-    def __init__(self, channelID, mode=Mode.tsumugi, is_temporary=False, unconditional=False):
+    def __init__(self, channelID, mode=Mode.tsumugi, is_temporary=False, unconditional=False, dajare=False):
         self.channelID = channelID
         self.mode = mode
 
@@ -72,6 +75,8 @@ class Channel:
         self.unconditional = unconditional
         self.base_token = 600
         self.get_base_token()
+        self.dajare = dajare
+        self.hiscore = 0
 
     def get_base_token(self):
         try:

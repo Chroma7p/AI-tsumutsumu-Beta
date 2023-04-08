@@ -3,14 +3,15 @@ from discord.ext import commands
 import discord
 import os
 import asyncio
-# from dotenv import load_dotenv
 import openai
 from channel import Channel, Mode
-# import MeCab
 from discord import app_commands
+from judging_puns import scoring
+import MeCab
 
-# load_dotenv()
-# m = MeCab.Tagger()
+from dotenv import load_dotenv
+load_dotenv(".env")
+m = MeCab.Tagger()
 
 # デプロイ先の環境変数にトークンをおいてね
 APITOKEN = os.environ["DISCORD_BOT_TOKEN"]
@@ -20,15 +21,15 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 bot = commands.Bot(
     command_prefix="/",
     intents=discord.Intents.all(),
-    application_id=1081421405259825182
+    application_id=os.environ["APPLICATION_ID"],
     # activity=discord.Activity(name="準備中")
 )
 
 tree = bot.tree
 
+rooms = os.environ["ROOM_ID"].split(",")
 
-channels = {channel: Channel(channel) for channel in [
-    985409309246644254, 1081461365694267453, 1082634484253466674, 1086592344410828861]}
+channels = {int(channel): Channel(int(channel)) for channel in rooms}
 
 
 def is_question(message: discord.Message):
@@ -149,12 +150,12 @@ async def tsumugi(interaction: discord.Interaction):
 
 @tree.command(name="mecab", description="mecabの導入が出来ているかのテストコマンドだよ 形態素解析できるよ")
 async def mecab(interaction: discord.Interaction, arg: str):
-    # await interaction.response.send_message(m.parse(arg))
-    await interaction.response.send_message("工事中！ごめんね！")
+    await interaction.response.send_message(m.parse(arg))
+    # await interaction.response.send_message("工事中！ごめんね！")
 
 
 @tree.command(name="test", description="スラッシュコマンドが機能しているかのテスト用コマンドだよ")
-async def test(interaction):
+async def test(interaction: discord.Interaction):
     print("ちゃろ～☆")
     await interaction.response.send_message("ちゃろ～☆")
 
@@ -180,20 +181,53 @@ async def disallow(interaction: discord.Interaction):
         return await interaction.response.send_message("元々許可されていないよ")
 
 
+@tree.command(name="dajare", description="ダジャレモードを切り替えるよ(WIP)")
+async def dajare(interaction: discord.Interaction):
+    channel = channels[interaction.channel.id]
+    if channel.dajare:
+        channel.dajare = False
+        return await interaction.response.send_message("ダジャレモードをオフにしたよ")
+    else:
+        channel.dajare = True
+        return await interaction.response.send_message("ダジャレモードをオンにしたよ")
+
+
 @bot.event
 # botの起動が完了したとき
 async def on_ready():
-    await tree.sync()
+    print("hi bro")
+    now_commands: list[discord.app_commands.Command] = tree.get_commands()
+    for command in now_commands:
+        print(command.name, command.description)
+    try:
+        await tree.sync()
+    except Exception as e:
+        print(e)
+    print("-synced-")
 
 errmsg = "err:The server had an error processing your request."
 
 
 @bot.event
 async def on_message(message: discord.Message):
+    # print(channels, message.channel.id)
+    channel = channels[message.channel.id]
+    # print(channel, message.content)
     if not is_question(message):
         return await bot.process_commands(message)
+    try:
+        if channel.dajare:
+            score, rep = scoring(message.content)
+            if rep:
+                channel.hiscore = max(channel.hiscore, score)
+                rep += "\n現在のハイスコア:" + str(channel.hiscore)
+                await message.channel.send(rep)
+                return await bot.process_commands(message)
+
+    except Exception as e:
+        print(e)
+
     async with message.channel.typing():
-        channel = channels[message.channel.id]
         try:
             reply = channel.send(message.content, message.author.display_name)
         # APIの応答エラーを拾う
@@ -214,7 +248,11 @@ async def on_message(message: discord.Message):
 async def main():
     # start the client
     async with bot:
-        await bot.start(APITOKEN)
-
+        try:
+            await bot.start(APITOKEN)
+        except KeyboardInterrupt:
+            await bot.close()
+        except Exception as e:
+            print(e)
 
 asyncio.run(main())
