@@ -1,6 +1,7 @@
 # discord.pyの大事な部分をimport
-from discord.ext import commands
+
 import discord
+from discord.ext import commands
 import os
 import asyncio
 import openai
@@ -14,7 +15,7 @@ load_dotenv(".env")
 m = MeCab.Tagger()
 
 # デプロイ先の環境変数にトークンをおいてね
-APITOKEN = os.environ["DISCORD_BOT_TOKEN"]
+API_TOKEN = os.environ["DISCORD_BOT_TOKEN"]
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
 # botのオブジェクトを作成(コマンドのトリガーを!に)
@@ -22,7 +23,8 @@ bot = commands.Bot(
     command_prefix="/",
     intents=discord.Intents.all(),
     application_id=os.environ["APPLICATION_ID"],
-    # activity=discord.Activity(name="準備中")
+    # activity=discord.Game(name="XX") #"XXをプレイ中"にする
+
 )
 
 tree = bot.tree
@@ -249,7 +251,7 @@ async def main():
     # start the client
     async with bot:
         try:
-            await bot.start(APITOKEN)
+            await bot.start(API_TOKEN)
         except KeyboardInterrupt:
             await bot.close()
         except Exception as e:

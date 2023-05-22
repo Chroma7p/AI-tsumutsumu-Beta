@@ -32,19 +32,19 @@ def scoring(inp):
     for nst, ind in noun:
         ll = len(nst)
         c = 0
-        nsta = ind[0]
+        n_start = ind[0]
         for found in re.finditer(nst, yomi):
-            ssta = found.start()
+            s_start = found.start()
 
-            if ssta != nsta:
-                if ssta < nsta:
-                    yy = yomi[: ssta] + "\"" + yomi[ssta: ssta + ll] + "\"" + \
-                        yomi[ssta + ll: nsta] + "\"" + \
-                        yomi[nsta:nsta + ll] + "\"" + yomi[nsta + ll:]
+            if s_start != n_start:
+                if s_start < n_start:
+                    yy = yomi[: s_start] + "\"" + yomi[s_start: s_start + ll] + "\"" + \
+                        yomi[s_start + ll: n_start] + "\"" + \
+                        yomi[n_start:n_start + ll] + "\"" + yomi[n_start + ll:]
                 else:
-                    yy = yomi[:nsta] + "\"" + yomi[nsta: nsta + ll] + "\"" + \
-                        yomi[nsta + ll:ssta] + "\"" + \
-                        yomi[ssta:ssta + ll] + "\"" + yomi[ssta + ll:]
+                    yy = yomi[:n_start] + "\"" + yomi[n_start: n_start + ll] + "\"" + \
+                        yomi[n_start + ll:s_start] + "\"" + \
+                        yomi[s_start:s_start + ll] + "\"" + yomi[s_start + ll:]
                 rep += yy + "\n"
                 sc.append(len(nst))
 

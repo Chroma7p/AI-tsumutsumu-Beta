@@ -55,8 +55,8 @@ class Mode:
 
 
 class Channel:
-    def __init__(self, channelID, mode=Mode.tsumugi, is_temporary=False, unconditional=False, dajare=False):
-        self.channelID = channelID
+    def __init__(self, channel_id, mode=Mode.tsumugi, is_temporary=False, unconditional=False, dajare=False):
+        self.channelID = channel_id
         self.mode = mode
 
         self.base_prompt: list[Message] = [
