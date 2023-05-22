@@ -79,8 +79,9 @@ async def bye(interaction: discord.Interaction):
 
 @tree.command(name="reset", description="そのチャンネルの会話ログをリセットするよ")
 async def reboot(interaction: discord.Interaction):
+    response: discord.InteractionResponse = interaction.response()
     channels[interaction.channel.id].reset()
-    await interaction.response.send_message("リセットしたよ！")
+    await response.send_message("リセットしたよ！")
 
 
 @tree.command(name="token", description="現在のトークン消費状況を表示するよ")
