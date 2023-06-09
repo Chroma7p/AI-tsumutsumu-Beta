@@ -201,20 +201,10 @@ async def minesweeper(interaction: discord.Interaction, x: int = 10, y: int = 10
     zenkaku = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"]
     if bomb > x * y:
         return await interaction.response.send_message("爆弾の数が多すぎるよ")
-    while bomb > 0:
-        i = random.randint(0, x - 1)
-        j = random.randint(0, y - 1)
-        if field[j][i] == 0:
-            field[j][i] = 9
-            bomb -= 1
-    for i in range(x):
-        for j in range(y):
-            if field[j][i] == 9:
-                continue
-            for dx in range(-1, 2):
-                for dy in range(-1, 2):
-                    if 0 <= i + dx < x and 0 <= j + dy < y and field[j + dy][i + dx] == 9:
-                        field[j][i] += 1
+    pair = [(i, j) for i in range(x) for j in range(y)]
+
+    for i in random.sample(pair, k=bomb):
+        field[i[1]][i[0]] = 9
 
     text = ""
     for i in range(x):
@@ -225,6 +215,8 @@ async def minesweeper(interaction: discord.Interaction, x: int = 10, y: int = 10
             else:
                 text += f"|| {zenkaku[field[j][i]]} || "
         text += "\n"
+    if len(text) > 1000:
+        return await interaction.response.send_message("フィールドが大きすぎるよ")
     await interaction.response.send_message(text)
 
 
