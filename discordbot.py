@@ -206,6 +206,15 @@ async def minesweeper(interaction: discord.Interaction, x: int = 10, y: int = 10
     for i in random.sample(pair, k=bomb):
         field[i[1]][i[0]] = 9
 
+    for i in range(x):
+        for j in range(y):
+            if field[j][i] == 9:
+                continue
+            for k in range(max(0, i - 1), min(x, i + 2)):
+                for l in range(max(0, j - 1), min(y, j + 2)):
+                    if field[l][k] == 9:
+                        field[j][i] += 1
+
     text = ""
     for i in range(x):
         text += "# "
