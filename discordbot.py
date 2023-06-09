@@ -199,6 +199,8 @@ async def dajare(interaction: discord.Interaction):
 async def minesweeper(interaction: discord.Interaction, x: int = 10, y: int = 10, bomb: int = 10):
     field = [[0 for _ in range(x)] for _ in range(y)]
     zenkaku = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"]
+    if bomb > x * y:
+        return await interaction.response.send_message("爆弾の数が多すぎるよ")
     while bomb > 0:
         i = random.randint(0, x - 1)
         j = random.randint(0, y - 1)
