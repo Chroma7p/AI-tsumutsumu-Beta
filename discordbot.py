@@ -9,6 +9,7 @@ from channel import Channel, Mode
 from discord import app_commands
 from judging_puns import scoring
 import MeCab
+import random
 
 from dotenv import load_dotenv
 load_dotenv(".env")
@@ -192,6 +193,37 @@ async def dajare(interaction: discord.Interaction):
     else:
         channel.dajare = True
         return await interaction.response.send_message("ダジャレモードをオンにしたよ")
+
+
+@tree.command(name="minesweeper", description="マインスイーパーを生成するよ")
+async def minesweeper(interaction: discord.Interaction, x: int = 10, y: int = 10, bomb: int = 10):
+    field = [[0 for _ in range(x)] for _ in range(y)]
+    zenkaku = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"]
+    while bomb > 0:
+        i = random.randint(0, x - 1)
+        j = random.randint(0, y - 1)
+        if field[j][i] == 0:
+            field[j][i] = 9
+            bomb -= 1
+    for i in range(x):
+        for j in range(y):
+            if field[j][i] == 9:
+                continue
+            for dx in range(-1, 2):
+                for dy in range(-1, 2):
+                    if 0 <= i + dx < x and 0 <= j + dy < y and field[j + dy][i + dx] == 9:
+                        field[j][i] += 1
+
+    text = ""
+    for i in range(x):
+        text += "# "
+        for j in range(y):
+            if field[j][i] == 9:
+                text += "|| Ｘ || "
+            else:
+                text += f"|| {zenkaku[field[j][i]]} || "
+        text += "\n"
+    await interaction.response.send_message(text)
 
 
 @bot.event
