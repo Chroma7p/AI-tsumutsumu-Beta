@@ -11,6 +11,8 @@ from judging_puns import scoring
 import MeCab
 import random
 from hashlib import sha1
+import time
+import struct
 
 from dotenv import load_dotenv
 load_dotenv(".env")
@@ -268,8 +270,8 @@ async def on_message(message: discord.Message):
     async with message.channel.typing():
         try:
             if channel.mode == Mode.tsumugi:
-                userhash = sha1(message.author.name.encode()).hexdigest()
-                content = f"{userhash}\n{message.author.name}:{message.content}\n{userhash}"
+                timehash = sha1(struct.pack('<f', time.time())).hexdigest()
+                content = f"{timehash}\n{message.author.name}:{message.content}\n{timehash}"
 
             reply = channel.send(content)
         # APIの応答エラーを拾う
