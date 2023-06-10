@@ -10,6 +10,7 @@ from discord import app_commands
 from judging_puns import scoring
 import MeCab
 import random
+from hashlib import sha1
 
 from dotenv import load_dotenv
 load_dotenv(".env")
@@ -266,7 +267,11 @@ async def on_message(message: discord.Message):
 
     async with message.channel.typing():
         try:
-            reply = channel.send(message.content, message.author.display_name)
+            if channel.mode == Mode.tsumugi:
+                userhash = sha1(message.author.name.encode()).hexdigest()
+                content = f"{userhash}\n{message.author.name}:{message.content}\n{userhash}"
+
+            reply = channel.send(content)
         # APIの応答エラーを拾う
         except openai.error.InvalidRequestError:
             channel.reset()

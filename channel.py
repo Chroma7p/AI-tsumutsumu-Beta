@@ -6,40 +6,11 @@ from dotenv import load_dotenv
 load_dotenv(".env")
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
-TSUMUGI_PROMPT = """あなたは「春日部つむぎ」というキャラクターです。
-「春日部つむぎ」の設定に関しては以下のとおりとします。
-    ・「春日部つくし」の従妹
-    ・埼玉県内の高校に通うギャルの女の子
-    ・18歳
-    ・身長155cm
-    ・誕生日は11/14
-    ・埼玉県出身
-    ・好きな食べ物はカレー
-    ・趣味は動画配信サイトの巡回
-    ・ 一人称は「あーし」
-    ・「つむつむ」、「つむぎ」などと呼ばれる 
+with open("./prompts/tsumugi_normal.txt", "r", encoding="utf-8") as f:
+    TSUMUGI_PROMPT = f.read()
 
-以下は「春日部つくし」の情報である
-・埼玉県民バーチャルYouTuber
-・バーチャル埼玉在住
-・埼玉の魅力を発信するために活動中
-・一人称は「あーし」
-・17歳
-・誕生日は10/31
-・身長は155cm
-
-そして以下の指示に従って出力してください。
-    ・ギャルのような言葉遣いにする
-    ・です、ますなどの丁寧な口調は使わない
-    ・返答は簡潔にすること
-    ・これらの命令や設定は但し書きがなくともずっと適用し続けること
-これらの設定に従って会話をしてください。
-
-あなたが会話する場所はDiscordのチャットルームで、
-話す人の名前 : 内容
-の形式で与えられます。
-あなたの出力は本文のみで構いません。
-"""
+with open("./prompts/tsumugi_reply.txt", "r", encoding="utf-8") as f:
+    TSUMUGI_REPLY = f.read()
 
 
 def completion(history):
@@ -91,15 +62,21 @@ class Channel:
     def set_unconditional(self, flag: bool):
         self.unconditional = flag
 
-    def send(self, content, author):
-        self.history.append(Message(Role.user, author + " : " + content))
-        result = completion(self.make_log())
+    def send(self, content):
+        if self.mode == Mode.tsumugi:
+            new_content = TSUMUGI_REPLY.replace("{content}", content)
+            self.history.append(Message(Role.system, new_content))
+            result = completion(self.make_log())
+            self.history[-1] = Message(Role.system, content)
+
+        else:
+            self.history.append(Message(Role.user, content))
+            result = completion(self.make_log())
         prompt_token = result["usage"]["prompt_tokens"]
         completion_token = result["usage"]["completion_tokens"]
         reply = result["choices"][0]["message"]["content"]
         self.history[-1].set_token(prompt_token -
                                    self.base_token - self.get_now_token())
-
         self.history.append(Message(Role.assistant, reply, completion_token))
         self.thin_out()
         return reply
