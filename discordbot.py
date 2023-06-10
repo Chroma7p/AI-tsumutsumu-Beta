@@ -210,9 +210,9 @@ async def minesweeper(interaction: discord.Interaction, x: int = 10, y: int = 10
         for j in range(y):
             if field[j][i] == 9:
                 continue
-            for k in range(max(0, i - 1), min(x, i + 2)):
-                for l in range(max(0, j - 1), min(y, j + 2)):
-                    if field[l][k] == 9:
+            for ii in range(max(0, i - 1), min(x, i + 2)):
+                for jj in range(max(0, j - 1), min(y, j + 2)):
+                    if field[jj][ii] == 9:
                         field[j][i] += 1
 
     text = ""
