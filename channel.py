@@ -61,7 +61,6 @@ class Channel:
         if self.mode == Mode.tsumugi:
             new_content = TSUMUGI_REPLY.replace("{hash}", hash)
             new_content = new_content.replace("{content}", content)
-            print(new_content)
             self.history.append(Message(Role.system, new_content))
             result = completion(self.make_log())
             self.history[-1] = Message(Role.system, content)
@@ -81,7 +80,7 @@ class Channel:
             return [hist.msg2dict() for hist in self.history]
 
     def get_now_token(self, i=0):
-        return sum([x.token for x in self.history])
+        return sum([x.token for x in self.history]) + self.base_token
 
     def thin_out(self):  # 間引き
         now_token = self.get_now_token()
