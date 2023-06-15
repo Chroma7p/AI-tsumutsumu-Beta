@@ -285,12 +285,12 @@ async def on_message(message: discord.Message):
 
             reply = channel.send(content, timehash)
         # APIの応答エラーを拾う
-        except openai.error.InvalidRequestError:
-            reply = "情報の取得に失敗したみたい\nもう一回試してみてね"
-        except openai.error.APIConnectionError:
-            reply = "OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね"
-        except openai.error.APIError:
-            reply = "OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね"
+        except openai.error.InvalidRequestError as e:
+            reply = f"情報の取得に失敗したみたい\nもう一回試してみてね\n```{e}```"
+        except openai.error.APIConnectionError as e:
+            reply = f"OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね\n```{e}```"
+        except openai.error.APIError as e:
+            reply = f"OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね\n```{e}```"
         except Exception as e:
             reply = f"err:{e}"
         finally:
