@@ -232,6 +232,16 @@ async def minesweeper(interaction: discord.Interaction, x: int = 10, y: int = 10
     await interaction.response.send_message(text)
 
 
+@tree.command(name="user_info", description="ユーザーの情報を表示するよ")
+async def user_info(interaction: discord.Interaction):
+    user = interaction.user
+    text = f"名前:{user.name}\n"
+    text += f"ID:{user.id}\n"
+    text += f"display_name:{user.display_name}\n"
+    text += f"global_name:{user.global_name}\n"
+    await interaction.response.send_message(text)
+
+
 @bot.event
 # botの起動が完了したとき
 async def on_ready():
