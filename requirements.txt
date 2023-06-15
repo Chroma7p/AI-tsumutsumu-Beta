@@ -4,3 +4,4 @@ python-dotenv
 mecab-python3
 unidic-lite
 ipadic
+tiktoken
