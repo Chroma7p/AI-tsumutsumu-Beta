@@ -268,16 +268,19 @@ async def on_message(message: discord.Message):
         print(e)
 
     async with message.channel.typing():
+        timehash = sha1(struct.pack('<f', time.time())).hexdigest()
         try:
             if channel.mode == Mode.tsumugi:
-                timehash = sha1(struct.pack('<f', time.time())).hexdigest()
                 content = f"{timehash}\n{message.author.display_name}:{message.content}\n{timehash}"
 
-            reply = channel.send(content)
+            reply = channel.send(content, timehash)
         # APIの応答エラーを拾う
         except openai.error.InvalidRequestError:
-            channel.reset()
-            reply = "情報の取得に失敗したみたい\n会話ログを削除するからもう一回試してみてね"
+            reply = "情報の取得に失敗したみたい\nもう一回試してみてね"
+        except openai.error.APIConnectionError:
+            reply = "OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね"
+        except openai.error.APIError:
+            reply = "OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね"
         except Exception as e:
             reply = f"err:{e}"
         finally:
