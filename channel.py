@@ -1,8 +1,10 @@
+from dotenv import load_dotenv
 from message import Message, Role
 import os
 import openai
 
-from dotenv import load_dotenv
+REPLY_TOKEN = 1024
+
 load_dotenv(".env")
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
@@ -15,8 +17,9 @@ with open("./prompts/tsumugi_reply.txt", "r", encoding="utf-8") as f:
 
 def completion(history):
     return openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=history
+        model="gpt-3.5-turbo-0613",
+        messages=history,
+        max_tokens=REPLY_TOKEN,
     )
 
 
@@ -42,19 +45,11 @@ class Channel:
         self.history: list[Message] = []
         self.is_temporary = is_temporary
         self.reset()
-        self.TOKEN_LIMIT = 3000
+        self.TOKEN_LIMIT = 4096
         self.unconditional = unconditional
-        self.base_token = 600
-        self.get_base_token()
+        self.base_token = sum([x.token for x in self.base_prompt])
         self.dajare = dajare
         self.hiscore = 0
-
-    def get_base_token(self):
-        try:
-            result = completion(self.make_log())
-            self.base_token = result["usage"]["prompt_tokens"]
-        except Exception as e:
-            print(e)
 
     def reset(self):
         self.history = []
@@ -74,12 +69,8 @@ class Channel:
         else:
             self.history.append(Message(Role.user, content))
             result = completion(self.make_log())
-        prompt_token = result["usage"]["prompt_tokens"]
-        completion_token = result["usage"]["completion_tokens"]
         reply = result["choices"][0]["message"]["content"]
-        self.history[-1].set_token(prompt_token -
-                                   self.base_token - self.get_now_token())
-        self.history.append(Message(Role.assistant, reply, completion_token))
+        self.history.append(Message(Role.assistant, reply))
         self.thin_out()
         return reply
 
@@ -96,7 +87,7 @@ class Channel:
         now_token = self.get_now_token()
         remove_token = 0
         remove_index = 0
-        while now_token - remove_token > self.TOKEN_LIMIT:
+        while now_token - remove_token > self.TOKEN_LIMIT - REPLY_TOKEN:
             remove_token += self.history[remove_index].token
             remove_index += 1
         self.history = self.history[remove_index:]
