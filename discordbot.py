@@ -286,16 +286,16 @@ async def on_message(message: discord.Message):
             reply = channel.send(content, timehash)
         # APIの応答エラーを拾う
         except openai.error.InvalidRequestError as e:
-            reply = f"情報の取得に失敗したみたい\nもう一回試してみてね\n```{e}```"
+            reply = f"err:情報の取得に失敗したみたい\nもう一回試してみてね\n```{e}```"
         except openai.error.APIConnectionError as e:
-            reply = f"OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね\n```{e}```"
+            reply = f"err:OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね\n```{e}```"
         except openai.error.APIError as e:
-            reply = f"OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね\n```{e}```"
+            reply = f"err:OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね\n```{e}```"
         except Exception as e:
-            reply = f"err:{e}"
+            reply = f"err:なにかエラーが起こってるみたい、なんかいろいろ書いとくから、開発者に見せてみて\n```{e}```"
         finally:
             if reply[:4] == "err:":
-                reply = f"なにかエラーが起こってるみたい、なんかいろいろ書いとくから、開発者に見せてみて\n```{reply}```"
+                channel.history.pop()
             for i in range(len(reply) // 1500 + 1):
                 await message.channel.send(reply[i * 1500:(i + 1) * 1500])
     # コマンド側にメッセージを渡して終了
