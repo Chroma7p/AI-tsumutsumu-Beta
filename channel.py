@@ -65,7 +65,10 @@ class Channel:
         if self.mode == Mode.tsumugi:
             new_content = TSUMUGI_REPLY.replace("{hash}", hash)
             new_content = new_content.replace("{content}", content)
-            self.history.append(Message(Role.system, new_content))
+            new_message = Message(Role.user, new_content)
+            if new_message.token + self.get_now_token() + REPLY_TOKEN > self.TOKEN_LIMIT:
+                self.thin_out()
+            self.history.append(new_message)
             result = completion(self.make_log())
             self.history[-1] = Message(Role.system, content)
 
