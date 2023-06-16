@@ -7,12 +7,16 @@ REPLY_TOKEN = 1024
 
 load_dotenv(".env")
 
+SECRET_KEY = os.environ["SECRET_KEY"]
+
 openai.api_key = os.environ["OPENAI_API_KEY"]
 with open("./prompts/tsumugi_normal.txt", "r", encoding="utf-8") as f:
     TSUMUGI_PROMPT = f.read()
 
 with open("./prompts/tsumugi_reply.txt", "r", encoding="utf-8") as f:
     TSUMUGI_REPLY = f.read()
+
+TSUMUGI_PROMPT = TSUMUGI_PROMPT.replace("{SECRET_KEY}", SECRET_KEY)
 
 
 def completion(history):
