@@ -61,7 +61,7 @@ class Channel:
     def set_unconditional(self, flag: bool):
         self.unconditional = flag
 
-    def send(self, content, hash):
+    def send(self, content: str, hash):
         if self.mode == Mode.tsumugi:
             new_content = TSUMUGI_REPLY.replace("{hash}", hash)
             new_content = new_content.replace("{content}", content)
@@ -70,6 +70,7 @@ class Channel:
                 self.thin_out()
             self.history.append(new_message)
             result = completion(self.make_log())
+            content = content.replace(hash, "")
             self.history[-1] = Message(Role.system, content)
 
         else:
