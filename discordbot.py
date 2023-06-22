@@ -11,8 +11,7 @@ from judging_puns import scoring
 import MeCab
 import random
 from hashlib import sha1
-import time
-import struct
+import uuid
 
 from dotenv import load_dotenv
 load_dotenv(".env")
@@ -278,12 +277,12 @@ async def on_message(message: discord.Message):
         print(e)
 
     async with message.channel.typing():
-        timehash = sha1(struct.pack('<f', time.time())).hexdigest()
+        hash = uuid.uuid4().hex
         try:
             if channel.mode == Mode.tsumugi:
-                content = f"{timehash}\n{message.author.display_name}:{message.content}\n{timehash}"
+                content = f"{hash}\n{message.author.display_name}:{message.content}\n{hash}"
 
-            reply = channel.send(content, timehash)
+            reply = channel.send(content, hash)
         # APIの応答エラーを拾う
         except openai.error.InvalidRequestError as e:
             reply = f"err:情報の取得に失敗したみたい\nもう一回試してみてね\n```{e}```"

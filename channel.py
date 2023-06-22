@@ -63,8 +63,8 @@ class Channel:
 
     def send(self, content: str, hash):
         if self.mode == Mode.tsumugi:
-            new_content = TSUMUGI_REPLY.replace("{hash}", hash)
-            new_content = new_content.replace("{content}", content)
+            new_content = TSUMUGI_REPLY.replace("{uuid}", hash)
+            new_content = new_content.replace("{user_input}", content)
             new_message = Message(Role.user, new_content)
             if new_message.token + self.get_now_token() + REPLY_TOKEN > self.TOKEN_LIMIT:
                 self.thin_out(new_message.token)
