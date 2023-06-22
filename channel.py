@@ -67,7 +67,7 @@ class Channel:
             new_content = new_content.replace("{content}", content)
             new_message = Message(Role.user, new_content)
             if new_message.token + self.get_now_token() + REPLY_TOKEN > self.TOKEN_LIMIT:
-                self.thin_out()
+                self.thin_out(new_message.token)
             self.history.append(new_message)
             result = completion(self.make_log())
             content = content.replace(hash, "")
@@ -90,11 +90,11 @@ class Channel:
     def get_now_token(self, i=0):
         return sum([x.token for x in self.history]) + self.base_token
 
-    def thin_out(self):  # 間引き
+    def thin_out(self,new_token:int=0):  # 間引き
         now_token = self.get_now_token()
         remove_token = 0
         remove_index = 0
-        while now_token - remove_token > self.TOKEN_LIMIT - REPLY_TOKEN:
+        while now_token - remove_token + new_token > self.TOKEN_LIMIT - REPLY_TOKEN:
             remove_token += self.history[remove_index].token
             remove_index += 1
         self.history = self.history[remove_index:]
