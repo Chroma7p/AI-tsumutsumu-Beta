@@ -92,9 +92,11 @@ class Channel:
 
     def thin_out(self,new_token:int=0):  # 間引き
         now_token = self.get_now_token()
+        print(now_token, new_token, self.TOKEN_LIMIT - REPLY_TOKEN)
         remove_token = 0
         remove_index = 0
         while now_token - remove_token + new_token > self.TOKEN_LIMIT - REPLY_TOKEN:
             remove_token += self.history[remove_index].token
             remove_index += 1
         self.history = self.history[remove_index:]
+        print(self.get_now_token() )
