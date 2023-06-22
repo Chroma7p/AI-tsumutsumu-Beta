@@ -40,10 +40,10 @@ class Channel:
         self.base_prompt: list[Message] = [
             Message(Role.system, TSUMUGI_PROMPT),
             Message(Role.assistant, "こんにちは！あーしは埼玉ギャルの春日部つむぎだよ！"),
-            Message(Role.user, "System:君のことを教えて！"),
+            Message(Role.user, "System : 君のことを教えて！"),
             Message(
                 Role.assistant, "あーしは埼玉県の高校に通う18歳のギャルで、身長155㎝だよ。誕生日は11月14日で、好きな食べ物はカレー。趣味は動画配信サイトの巡回だよ。"),
-            Message(Role.user, "System:よろしくね！"),
+            Message(Role.user, "System : よろしくね！"),
             Message(Role.assistant, "よろしく！")
         ]
         self.history: list[Message] = []
@@ -92,11 +92,11 @@ class Channel:
 
     def thin_out(self,new_token:int=0):  # 間引き
         now_token = self.get_now_token()
-        print(now_token, new_token, self.TOKEN_LIMIT - REPLY_TOKEN)
+        # print(now_token, new_token, self.TOKEN_LIMIT - REPLY_TOKEN)
         remove_token = 0
         remove_index = 0
         while now_token - remove_token + new_token > self.TOKEN_LIMIT - REPLY_TOKEN:
             remove_token += self.history[remove_index].token
             remove_index += 1
         self.history = self.history[remove_index:]
-        print(self.get_now_token() )
+        
