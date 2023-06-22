@@ -21,7 +21,7 @@ TSUMUGI_PROMPT = TSUMUGI_PROMPT.replace("{SECRET_KEY}", SECRET_KEY)
 
 def completion(history):
     return openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-0613",
+        model="gpt-3.5-turbo",
         messages=history,
         max_tokens=REPLY_TOKEN,
     )
