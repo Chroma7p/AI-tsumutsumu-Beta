@@ -89,7 +89,7 @@ async def reboot(interaction: discord.Interaction):
 @tree.command(name="token", description="現在のトークン消費状況を表示するよ")
 async def token(interaction: discord.Interaction):
     channel = channels[interaction.channel.id]
-    await interaction.response.send_message(f"現在の利用しているトークンの数は{channel.get_now_token()}だよ！\n{channel.TOKEN_LIMIT}に達すると古いログから削除されていくよ！")
+    await interaction.response.send_message(f"現在の利用しているトークンの数は{channel.get_now_token()}だよ！\n{channel.TOKEN_LIMIT}に達すると古いログから削除されていくよ！\n(base:{channel.base_token},history:{sum([x.token for x in channel.history])})")
 
 
 @tree.command(name="history", description="現在残っている会話ログを表示するよ、結構出るよ")
@@ -280,7 +280,7 @@ async def on_message(message: discord.Message):
         hash = uuid.uuid4().hex
         try:
             if channel.mode == Mode.tsumugi:
-                content = f"{hash}\n{message.author.display_name}:{message.content}\n{hash}"
+                content = f"{hash}\n{message.author.display_name} : {message.content}\n{hash}"
 
             reply = channel.send(content, hash)
         # APIの応答エラーを拾う
