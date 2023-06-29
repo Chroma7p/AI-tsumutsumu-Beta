@@ -66,7 +66,7 @@ class Channel:
             new_content = TSUMUGI_REPLY.replace("{uuid}", hash)
             new_content = new_content.replace("{user_input}", content)
             new_message = Message(Role.user, new_content)
-            if new_message.token + self.get_now_token() + REPLY_TOKEN > self.TOKEN_LIMIT:
+            if new_message.token + self.get_now_token() + REPLY_TOKEN + 200 > self.TOKEN_LIMIT:
                 self.thin_out(new_message.token)
             self.history.append(new_message)
             result = completion(self.make_log())
@@ -96,7 +96,7 @@ class Channel:
         # print(now_token, new_token, self.TOKEN_LIMIT - REPLY_TOKEN)
         remove_token = 0
         remove_index = 0
-        while before_token - remove_token + new_token > self.TOKEN_LIMIT - REPLY_TOKEN:
+        while before_token - remove_token + new_token > self.TOKEN_LIMIT - REPLY_TOKEN - 200:
             remove_token += self.history[remove_index].token
             remove_index += 1
         self.history = self.history[remove_index:]
