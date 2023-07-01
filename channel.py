@@ -27,7 +27,7 @@ class Mode:
 
 
 class Channel:
-    def __init__(self, channel_id, mode=Mode.tsumugi, is_temporary=False, unconditional=False, dajare=False,model="chatgpt-3.5-turbo-0613"):
+    def __init__(self, channel_id, mode=Mode.tsumugi, is_temporary=False, unconditional=False, dajare=False,model="gpt-3.5-turbo-0613"):
         self.channelID = channel_id
         self.mode = mode
 
