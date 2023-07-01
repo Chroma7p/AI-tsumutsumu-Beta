@@ -280,7 +280,7 @@ async def on_message(message: discord.Message):
         hash = uuid.uuid4().hex[6]
         try:
             if channel.mode == Mode.tsumugi:
-                content = f"{hash}\n{message.author.display_name} : {message.content}\n{hash}"
+                content = f"{hash}\nuser name : {message.author.display_name} :\n{message.content}\n{hash}"
 
             reply = channel.send(content, hash)
         # APIの応答エラーを拾う
