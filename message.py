@@ -34,7 +34,7 @@ class Message:
     def calc_token(self):
         """Returns the number of tokens used by a list of messages."""
         try:
-            encoding = tiktoken.encoding_for_model("gpt-3.5-turbo-0301")
+            encoding = tiktoken.encoding_for_model("gpt-3.5-turbo-0613")
         except KeyError:
             encoding = tiktoken.get_encoding("cl100k_base")
 
