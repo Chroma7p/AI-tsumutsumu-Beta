@@ -75,7 +75,7 @@ class Channel:
         reply = result["choices"][0]["message"]["content"]
         self.history.append(Message(Role.assistant, reply))
         self.thin_out()
-        return reply.replace("つむぎ", "").strip().strip(":")
+        return reply.strip("つむぎ", "").strip().strip(":")
     
     def make_log(self):
         if self.mode == Mode.tsumugi:
