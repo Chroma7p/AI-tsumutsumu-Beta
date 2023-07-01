@@ -3,7 +3,7 @@ from message import Message, Role
 import os
 import openai
 
-REPLY_TOKEN = 1024
+
 
 load_dotenv(".env")
 
@@ -19,12 +19,6 @@ with open("./prompts/tsumugi_reply.txt", "r", encoding="utf-8") as f:
 TSUMUGI_PROMPT = TSUMUGI_PROMPT.replace("{SECRET_KEY}", SECRET_KEY)
 
 
-def completion(history):
-    return openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=history,
-        max_tokens=REPLY_TOKEN,
-    )
 
 
 class Mode:
@@ -33,7 +27,7 @@ class Mode:
 
 
 class Channel:
-    def __init__(self, channel_id, mode=Mode.tsumugi, is_temporary=False, unconditional=False, dajare=False):
+    def __init__(self, channel_id, mode=Mode.tsumugi, is_temporary=False, unconditional=False, dajare=False,model="chatgpt-3.5-turbo-0613"):
         self.channelID = channel_id
         self.mode = mode
 
@@ -50,10 +44,12 @@ class Channel:
         self.is_temporary = is_temporary
         self.reset()
         self.TOKEN_LIMIT = 4096
+        self.REPLY_TOKEN = 1024
         self.unconditional = unconditional
         self.base_token = sum([x.token for x in self.base_prompt])
         self.dajare = dajare
         self.hiscore = 0
+        self.model=model
 
     def reset(self):
         self.history = []
@@ -66,21 +62,21 @@ class Channel:
             new_content = TSUMUGI_REPLY.replace("{uuid}", hash)
             new_content = new_content.replace("{user_input}", content)
             new_message = Message(Role.user, new_content)
-            if new_message.token + self.get_now_token() + REPLY_TOKEN + 200 > self.TOKEN_LIMIT:
+            if new_message.token + self.get_now_token() + self.REPLY_TOKEN + 200 > self.TOKEN_LIMIT:
                 self.thin_out(new_message.token)
             self.history.append(new_message)
-            result = completion(self.make_log())
+            result = self.completion(self.make_log())
             content = content.replace(hash, "")
             self.history[-1] = Message(Role.system, content)
 
         else:
             self.history.append(Message(Role.user, content))
-            result = completion(self.make_log())
+            result = self.completion(self.make_log())
         reply = result["choices"][0]["message"]["content"]
         self.history.append(Message(Role.assistant, reply))
         self.thin_out()
-        return reply.replace("つむぎ :", "")
-
+        return reply.replace("つむぎ", "").strip().strip(":")
+    
     def make_log(self):
         if self.mode == Mode.tsumugi:
             return [hist.msg2dict() for hist in self.base_prompt + self.history]
@@ -102,4 +98,12 @@ class Channel:
         self.history = self.history[remove_index:]
         after_token = self.get_now_token()
         print("thin out:",before_token,after_token)
+
+    def completion(self):
+        return openai.ChatCompletion.create(
+            model=self.model,
+            messages=self.history,
+            max_tokens=self.REPLY_TOKEN,
+        )
+
         
