@@ -277,7 +277,7 @@ async def on_message(message: discord.Message):
         print(e)
 
     async with message.channel.typing():
-        hash = uuid.uuid4().hex
+        hash = uuid.uuid4().hex[6]
         try:
             if channel.mode == Mode.tsumugi:
                 content = f"{hash}\n{message.author.display_name} : {message.content}\n{hash}"
