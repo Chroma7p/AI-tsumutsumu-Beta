@@ -99,10 +99,11 @@ class Channel:
         after_token = self.get_now_token()
         print("thin out:",before_token,after_token)
 
+
     def completion(self):
         return openai.ChatCompletion.create(
             model=self.model,
-            messages=self.history,
+            messages=self.make_log(),
             max_tokens=self.REPLY_TOKEN,
         )
 
