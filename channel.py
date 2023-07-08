@@ -66,7 +66,6 @@ class Channel:
                 self.thin_out(new_message.token)
             self.history.append(new_message)
             result = self.completion()
-            content = content.replace(hash, "")
             self.history[-1] = Message(Role.system, content)
 
         else:
