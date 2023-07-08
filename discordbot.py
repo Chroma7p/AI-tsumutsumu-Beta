@@ -276,42 +276,39 @@ async def on_message(message: discord.Message):
     except Exception as e:
         print(e)
 
-    async with message.channel.typing():
-        try:
-            msg = await message.reply("考え中……")
-            reply = ""
-            chunk_size=50
-            next_chunk=chunk_size
 
-
-            response = channel.send(message.author.display_name+' : '+message.content)
-            for chunk in response:
-                reply += chunk
-                if len(reply) > next_chunk:
-                    try: 
-                        await msg.edit(content=reply)
-                    except Exception as e:
-                        msg = await message.channel.send(reply)
-                    next_chunk += chunk_size
-            try: 
-                await msg.edit(content=reply)
-            except Exception as e:
-                msg = await message.channel.send(reply)
-                
-
-        # APIの応答エラーを拾う
-        except openai.error.InvalidRequestError as e:
-            reply = f"err:情報の取得に失敗したみたい\nもう一回試してみてね\n```{e}```"
-        except openai.error.APIConnectionError as e:
-            reply = f"err:OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね\n```{e}```"
-        except openai.error.APIError as e:
-            reply = f"err:OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね\n```{e}```"
+    try:
+        msg = await message.reply("考え中……")
+        reply = ""
+        chunk_size=50
+        next_chunk=chunk_size
+        response = channel.send(message.author.display_name+' : '+message.content)
+        for chunk in response:
+            reply += chunk
+            if len(reply) > next_chunk:
+                try: 
+                    await msg.edit(content=reply)
+                except Exception as e:
+                    msg = await message.channel.send(reply)
+                next_chunk += chunk_size
+        try: 
+            await msg.edit(content=reply)
         except Exception as e:
-            reply = f"err:なにかエラーが起こってるみたい、なんかいろいろ書いとくから、開発者に見せてみて\n```{e}```"
-        finally:
-            if reply[:4] == "err:":
-                channel.history.pop()
-                await message.channel.send(reply)
+            msg = await message.channel.send(reply)
+            
+    # APIの応答エラーを拾う
+    except openai.error.InvalidRequestError as e:
+        reply = f"err:情報の取得に失敗したみたい\nもう一回試してみてね\n```{e}```"
+    except openai.error.APIConnectionError as e:
+        reply = f"err:OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね\n```{e}```"
+    except openai.error.APIError as e:
+        reply = f"err:OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね\n```{e}```"
+    except Exception as e:
+        reply = f"err:なにかエラーが起こってるみたい、なんかいろいろ書いとくから、開発者に見せてみて\n```{e}```"
+    finally:
+        if reply[:4] == "err:":
+            channel.history.pop()
+            await message.channel.send(reply)
     # コマンド側にメッセージを渡して終了
     await bot.process_commands(message)
 
