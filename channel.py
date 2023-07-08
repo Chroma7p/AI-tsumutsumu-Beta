@@ -57,10 +57,10 @@ class Channel:
     def set_unconditional(self, flag: bool):
         self.unconditional = flag
 
-    def send(self, content: str, hash):
+    def send(self, content: str):
         if self.mode == Mode.tsumugi:
-            new_content = TSUMUGI_REPLY.replace("{uuid}", hash)
-            new_content = new_content.replace("{user_input}", content)
+
+            new_content = TSUMUGI_REPLY.replace("{user_input}", content)
             new_message = Message(Role.user, new_content)
             if new_message.token + self.get_now_token() + self.REPLY_TOKEN + 200 > self.TOKEN_LIMIT:
                 self.thin_out(new_message.token)
