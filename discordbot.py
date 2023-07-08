@@ -277,12 +277,8 @@ async def on_message(message: discord.Message):
         print(e)
 
     async with message.channel.typing():
-        hash = uuid.uuid4().hex[6]
         try:
-            if channel.mode == Mode.tsumugi:
-                content = f"{hash}\nuser name : {message.author.display_name} :\n{message.content}\n{hash}"
-
-            reply = channel.send(content, hash)
+            reply = channel.send(message.content)
         # APIの応答エラーを拾う
         except openai.error.InvalidRequestError as e:
             reply = f"err:情報の取得に失敗したみたい\nもう一回試してみてね\n```{e}```"
