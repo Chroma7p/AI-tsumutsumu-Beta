@@ -278,7 +278,27 @@ async def on_message(message: discord.Message):
 
     async with message.channel.typing():
         try:
-            reply = channel.send(message.content)
+            msg = await message.reply("考え中……")
+            reply = ""
+            chunk_size=50
+            next_chunk=chunk_size
+
+
+            response = channel.send(message.author.display_name+' : '+message.content)
+            for chunk in response:
+                reply += chunk
+                if len(reply) > next_chunk:
+                    try: 
+                        await msg.edit(content=reply)
+                    except Exception as e:
+                        msg = await message.channel.send(reply)
+                    next_chunk += chunk_size
+            try: 
+                await msg.edit(content=reply)
+            except Exception as e:
+                msg = await message.channel.send(reply)
+                
+
         # APIの応答エラーを拾う
         except openai.error.InvalidRequestError as e:
             reply = f"err:情報の取得に失敗したみたい\nもう一回試してみてね\n```{e}```"
@@ -291,8 +311,7 @@ async def on_message(message: discord.Message):
         finally:
             if reply[:4] == "err:":
                 channel.history.pop()
-            for i in range(len(reply) // 1500 + 1):
-                await message.channel.send(reply[i * 1500:(i + 1) * 1500])
+                await message.channel.send(reply)
     # コマンド側にメッセージを渡して終了
     await bot.process_commands(message)
 

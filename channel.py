@@ -65,16 +65,26 @@ class Channel:
             if new_message.token + self.get_now_token() + self.REPLY_TOKEN + 200 > self.TOKEN_LIMIT:
                 self.thin_out(new_message.token)
             self.history.append(new_message)
-            result = self.completion()
-            self.history[-1] = Message(Role.system, content)
 
         else:
             self.history.append(Message(Role.user, content))
-            result = self.completion()
-        reply = result["choices"][0]["message"]["content"]
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo-0613",
+            messages=self.make_log(),
+            max_tokens=self.REPLY_TOKEN,
+            stream = True,
+        )
+        reply = ""
+        for chunk in response:
+            if "content" in chunk["choices"][0]["delta"]:
+                reply += chunk["choices"][0]["delta"]["content"]
+                yield chunk["choices"][0]["delta"]["content"]
+            if chunk["choices"][0]["finish_reason"] == "stop":
+                break
+        if self.mode == Mode.tsumugi:
+            self.history[-1] = Message(Role.system, content)
         self.history.append(Message(Role.assistant, reply))
         self.thin_out()
-        return reply.strip("つむぎ").strip().strip(":")
     
     def make_log(self):
         if self.mode == Mode.tsumugi:
