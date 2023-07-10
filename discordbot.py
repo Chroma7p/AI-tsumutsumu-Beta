@@ -292,9 +292,22 @@ async def on_message(message: discord.Message):
                     msg = await message.channel.send(reply)
                 next_chunk += chunk_size
         try: 
+            all_token = channel.get_now_token()
+            completion_token = channel.history[-1].token
+            all_token -= completion_token
+            if channel.model == "gpt-3.5-turbo-0613":
+                price= 0.0015*(all_token/1000)+0.002*(completion_token/1000)
+            elif channel.model == "gpt-4-0613":
+                price= 0.03*(all_token/1000)+0.06*(completion_token/1000)
+            else:
+                price = 0
+            reply += f"\n\n消費: ${price:.3f}"
             await msg.edit(content=reply)
+            
         except Exception as e:
             msg = await message.channel.send(reply)
+            
+            
             
     # APIの応答エラーを拾う
     except openai.error.InvalidRequestError as e:
