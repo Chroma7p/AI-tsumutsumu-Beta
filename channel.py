@@ -50,6 +50,8 @@ class Channel:
         self.dajare = dajare
         self.hiscore = 0
         self.model=model
+        self.precense_penalty = 0.0
+        self.frequency_penalty = 0.0
 
     def reset(self):
         self.history = []
@@ -73,6 +75,8 @@ class Channel:
             messages=self.make_log(),
             max_tokens=self.REPLY_TOKEN,
             stream = True,
+            presence_penalty = self.precense_penalty,
+            frequency_penalty = self.frequency_penalty
         )
         reply = ""
         for chunk in response:
@@ -114,6 +118,8 @@ class Channel:
             model=self.model,
             messages=self.make_log(),
             max_tokens=self.REPLY_TOKEN,
+            precense_penalty = self.precense_penalty,
+            frequency_penalty = self.frequency_penalty
         )
 
         
