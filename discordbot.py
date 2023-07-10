@@ -240,6 +240,24 @@ async def user_info(interaction: discord.Interaction):
     text += f"global_name:{user.global_name}\n"
     await interaction.response.send_message(text)
 
+@tree.command(name="destruction", description="パラメータを破壊するよ")
+async def destruction(interaction: discord.Interaction):
+    if interaction.channel.id not in channels:
+        return await interaction.response.send_message("いないよ……")
+    channel = channels[interaction.channel.id]
+    channel.precense_penalty = -2.0
+    channel.frequency_penalty = -2.0
+    await interaction.response.send_message("破壊したよ")
+
+@tree.command(name="regeneration", description="パラメータを戻すよ")
+async def regeneration(interaction: discord.Interaction):
+    if interaction.channel.id not in channels:
+        return await interaction.response.send_message("いないよ……")
+    channel = channels[interaction.channel.id]
+    channel.precense_penalty = 0.0
+    channel.frequency_penalty = 0.0
+    await interaction.response.send_message("戻したよ")
+
 
 @bot.event
 # botの起動が完了したとき
