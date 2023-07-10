@@ -241,12 +241,13 @@ async def user_info(interaction: discord.Interaction):
     await interaction.response.send_message(text)
 
 @tree.command(name="destruction", description="パラメータを破壊するよ")
-async def destruction(interaction: discord.Interaction):
+@app_commands.describe(precense_penalty="すでに存在するワードへのペナルティ(-2.0<x<2.0)",frequency_penalty="頻度に対するペナルティ(-2.0<x<2.0)")
+async def destruction(interaction: discord.Interaction, precense_penalty: float = -2.0, frequency_penalty: float = -2.0):
     if interaction.channel.id not in channels:
         return await interaction.response.send_message("いないよ……")
     channel = channels[interaction.channel.id]
-    channel.precense_penalty = -2.0
-    channel.frequency_penalty = -2.0
+    channel.precense_penalty = precense_penalty
+    channel.frequency_penalty = frequency_penalty
     await interaction.response.send_message("破壊したよ")
 
 @tree.command(name="regeneration", description="パラメータを戻すよ")
