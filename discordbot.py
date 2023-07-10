@@ -296,12 +296,16 @@ async def on_message(message: discord.Message):
             completion_token = channel.history[-1].token
             all_token -= completion_token
             if channel.model == "gpt-3.5-turbo-0613":
-                price= 0.0015*(all_token/1000)+0.002*(completion_token/1000)
+                prompt_cost = 0.0015
+                completion_cost = 0.002
             elif channel.model == "gpt-4-0613":
-                price= 0.03*(all_token/1000)+0.06*(completion_token/1000)
+                prompt_cost= 0.03
+                completion_cost = 0.06
             else:
                 price = 0
-            reply += f"\n\n消費: ${price:.3f}"
+            prompt_price= prompt_cost*(all_token/1000)
+            completion_price = completion_cost*(completion_token/1000)
+            reply += f"\n\nlog_token: {all_token}x({prompt_cost}/1K)=${prompt_price:.4}\ncompletion_token: {completion_token}x({completion_cost}/1K)=${completion_price:.4}\n消費: ${prompt_price+completion_price:.4}"
             await msg.edit(content=reply)
             
         except Exception as e:
