@@ -87,6 +87,7 @@ class Channel:
                 break
         if self.mode == Mode.tsumugi:
             self.history[-1] = Message(Role.system, content)
+        reply = "つむぎ : " + reply
         self.history.append(Message(Role.assistant, reply))
         self.thin_out()
     
