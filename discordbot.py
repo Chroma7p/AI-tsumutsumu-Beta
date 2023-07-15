@@ -10,6 +10,8 @@ from discord import app_commands
 from judging_puns import scoring
 import MeCab
 import random
+from hashlib import sha1
+import uuid
 
 from dotenv import load_dotenv
 load_dotenv(".env")
@@ -87,7 +89,7 @@ async def reboot(interaction: discord.Interaction):
 @tree.command(name="token", description="現在のトークン消費状況を表示するよ")
 async def token(interaction: discord.Interaction):
     channel = channels[interaction.channel.id]
-    await interaction.response.send_message(f"現在の利用しているトークンの数は{channel.get_now_token()}だよ！\n{channel.TOKEN_LIMIT}に達すると古いログから削除されていくよ！")
+    await interaction.response.send_message(f"現在の利用しているトークンの数は{channel.get_now_token()}だよ！\n{channel.TOKEN_LIMIT}に達すると古いログから削除されていくよ！\n(base:{channel.base_token},history:{sum([x.token for x in channel.history])})")
 
 
 @tree.command(name="history", description="現在残っている会話ログを表示するよ、結構出るよ")
@@ -210,9 +212,9 @@ async def minesweeper(interaction: discord.Interaction, x: int = 10, y: int = 10
         for j in range(y):
             if field[j][i] == 9:
                 continue
-            for k in range(max(0, i - 1), min(x, i + 2)):
-                for l in range(max(0, j - 1), min(y, j + 2)):
-                    if field[l][k] == 9:
+            for ii in range(max(0, i - 1), min(x, i + 2)):
+                for jj in range(max(0, j - 1), min(y, j + 2)):
+                    if field[jj][ii] == 9:
                         field[j][i] += 1
 
     text = ""
@@ -227,6 +229,35 @@ async def minesweeper(interaction: discord.Interaction, x: int = 10, y: int = 10
     if len(text) > 1000:
         return await interaction.response.send_message("フィールドが大きすぎるよ")
     await interaction.response.send_message(text)
+
+
+@tree.command(name="user_info", description="ユーザーの情報を表示するよ")
+async def user_info(interaction: discord.Interaction):
+    user = interaction.user
+    text = f"名前:{user.name}\n"
+    text += f"ID:{user.id}\n"
+    text += f"display_name:{user.display_name}\n"
+    text += f"global_name:{user.global_name}\n"
+    await interaction.response.send_message(text)
+
+@tree.command(name="destruction", description="パラメータを破壊するよ")
+@app_commands.describe(precense_penalty="すでに存在するワードへのペナルティ(-2.0<x<2.0)",frequency_penalty="頻度に対するペナルティ(-2.0<x<2.0)")
+async def destruction(interaction: discord.Interaction, precense_penalty: float = -2.0, frequency_penalty: float = -2.0):
+    if interaction.channel.id not in channels:
+        return await interaction.response.send_message("いないよ……")
+    channel = channels[interaction.channel.id]
+    channel.precense_penalty = precense_penalty
+    channel.frequency_penalty = frequency_penalty
+    await interaction.response.send_message("破壊したよ")
+
+@tree.command(name="regeneration", description="パラメータを戻すよ")
+async def regeneration(interaction: discord.Interaction):
+    if interaction.channel.id not in channels:
+        return await interaction.response.send_message("いないよ……")
+    channel = channels[interaction.channel.id]
+    channel.precense_penalty = 0.0
+    channel.frequency_penalty = 0.0
+    await interaction.response.send_message("戻したよ")
 
 
 @bot.event
@@ -264,20 +295,56 @@ async def on_message(message: discord.Message):
     except Exception as e:
         print(e)
 
-    async with message.channel.typing():
-        try:
-            reply = channel.send(message.content, message.author.display_name)
-        # APIの応答エラーを拾う
-        except openai.error.InvalidRequestError:
-            channel.reset()
-            reply = "情報の取得に失敗したみたい\n会話ログを削除するからもう一回試してみてね"
+
+    try:
+        msg = await message.reply("考え中……")
+        reply = ""
+        chunk_size=50
+        next_chunk=chunk_size
+        response = channel.send(message.author.display_name+' : '+message.content)
+        for chunk in response:
+            reply += chunk
+            if len(reply) > next_chunk:
+                try: 
+                    await msg.edit(content=reply)
+                except Exception as e:
+                    msg = await message.channel.send(reply)
+                next_chunk += chunk_size
+        try: 
+            all_token = channel.get_now_token()
+            completion_token = channel.history[-1].token
+            all_token -= completion_token
+            if channel.model == "gpt-3.5-turbo-0613":
+                prompt_cost = 0.0015
+                completion_cost = 0.002
+            elif channel.model == "gpt-4-0613":
+                prompt_cost= 0.03
+                completion_cost = 0.06
+            else:
+                price = 0
+            prompt_price= prompt_cost*(all_token/1000)
+            completion_price = completion_cost*(completion_token/1000)
+            reply += f"\n\nlog_token: {all_token}x({prompt_cost}/1K)=${prompt_price:.4}\ncompletion_token: {completion_token}x({completion_cost}/1K)=${completion_price:.4}\n消費: ${prompt_price+completion_price:.4}"
+            await msg.edit(content=reply)
+            
         except Exception as e:
-            reply = f"err:{e}"
-        finally:
-            if reply[:4] == "err:":
-                reply = f"なにかエラーが起こってるみたい、なんかいろいろ書いとくから、開発者に見せてみて\n```{reply}```"
-            for i in range(len(reply) // 1500 + 1):
-                await message.channel.send(reply[i * 1500:(i + 1) * 1500])
+            msg = await message.channel.send(reply)
+            
+            
+            
+    # APIの応答エラーを拾う
+    except openai.error.InvalidRequestError as e:
+        reply = f"err:情報の取得に失敗したみたい\nもう一回試してみてね\n```{e}```"
+    except openai.error.APIConnectionError as e:
+        reply = f"err:OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね\n```{e}```"
+    except openai.error.APIError as e:
+        reply = f"err:OpenAIのAPIに接続できなかったみたい\nもう一回試してみてね\n```{e}```"
+    except Exception as e:
+        reply = f"err:なにかエラーが起こってるみたい、なんかいろいろ書いとくから、開発者に見せてみて\n```{e}```"
+    finally:
+        if reply[:4] == "err:":
+            channel.history.pop()
+            await message.channel.send(reply)
     # コマンド側にメッセージを渡して終了
     await bot.process_commands(message)
 

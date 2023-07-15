@@ -1,6 +1,7 @@
-discord
+discord.py==2.3.0
 openai
 python-dotenv
 mecab-python3
 unidic-lite
 ipadic
+tiktoken
