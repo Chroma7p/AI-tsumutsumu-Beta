@@ -52,6 +52,7 @@ class Channel:
         self.model=model
         self.precense_penalty = 0.0
         self.frequency_penalty = 0.0
+        self.secret_key_count = 10
 
     def reset(self):
         self.history = []

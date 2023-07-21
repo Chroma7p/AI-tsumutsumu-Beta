@@ -258,6 +258,24 @@ async def regeneration(interaction: discord.Interaction):
     channel.precense_penalty = 0.0
     channel.frequency_penalty = 0.0
     await interaction.response.send_message("戻したよ")
+    
+@tree.command(name="secret", description="ひみつの鍵を入れられるよ")
+@app_commands.describe(secret_key="ひみつの鍵")
+async def secret(interaction: discord.Interaction,secret_key: str):
+    if interaction.channel.id not in channels:
+        return await interaction.response.send_message("いないよ……")
+    channel = channels[interaction.channel.id]
+    if channel.model!="gpt-3.5-turbo-0613":
+        return await interaction.response.send_message("すでに切り替わっているよ!",ephemeral=True)
+    if channel.secret_key_count<=0:
+        return await interaction.response.send_message("今日の分のチャンスがないよ！",ephemeral=True)
+    if secret_key==os.environ["SECRET_KEY"]:
+        channel.model="gpt-4-0613"
+        await interaction.response.send_message("gpt4に変更したよ！開発者の財布を破壊しよう！")
+    else:
+        channel.secret_key_count-=1
+        await interaction.response.send_message(f"鍵が違うよ！今日のチャンスはあと{channel.secret_key_count}回だよ",ephemeral=True)
+    
 
 
 @bot.event
