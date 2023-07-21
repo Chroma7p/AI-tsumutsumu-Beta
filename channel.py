@@ -72,7 +72,7 @@ class Channel:
         else:
             self.history.append(Message(Role.user, content))
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo-0613",
+            model=self.model,
             messages=self.make_log(),
             max_tokens=self.REPLY_TOKEN,
             stream = True,
