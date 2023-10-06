@@ -1,7 +1,7 @@
 # discord.pyの大事な部分をimport
 
 import discord
-from discord.ext import commands
+from discord.ext import commands,tasks
 import os
 import asyncio
 import openai
@@ -10,8 +10,8 @@ from discord import app_commands
 from judging_puns import scoring
 import MeCab
 import random
-from hashlib import sha1
-import uuid
+import datetime as dt
+
 
 from dotenv import load_dotenv
 load_dotenv(".env")
@@ -277,22 +277,35 @@ async def secret(interaction: discord.Interaction,secret_key: str):
         await interaction.response.send_message(f"鍵が違うよ！今日のチャンスはあと{channel.secret_key_count}回だよ",ephemeral=True)
     
 
-
 @bot.event
 # botの起動が完了したとき
 async def on_ready():
-    print("hi bro")
-    now_commands: list[discord.app_commands.Command] = tree.get_commands()
-    for command in now_commands:
-        print(command.name, command.description)
+    print("Logged in as")
+    print(bot.user.name)
+    print(bot.user.id)
+    print("------")
     try:
         await tree.sync()
     except Exception as e:
         print(e)
     print("-synced-")
+    await notif.start()
+
+
+@tasks.loop(seconds=60)
+async def notif():
+    
+    tz=dt.timezone(dt.timedelta(hours=9))
+    now=dt.datetime.now(tz)
+    if now.hour==23 and now.minute==59:
+        notif_channels = os.environ["NOTIF_CHANNEL"].split(",")
+        if not notif_channels:
+            return
+        for channel_id in notif_channels:
+            channel=bot.get_channel(int(channel_id))
+            await channel.send("今日はとっても楽しかったね。明日はも～っと楽しくなるよね。ねっハム太郎♪")
 
 errmsg = "err:The server had an error processing your request."
-
 
 @bot.event
 async def on_message(message: discord.Message):
@@ -371,6 +384,7 @@ async def main():
     # start the client
     async with bot:
         try:
+            
             await bot.start(API_TOKEN)
         except KeyboardInterrupt:
             await bot.close()
