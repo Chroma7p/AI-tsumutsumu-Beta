@@ -116,9 +116,10 @@ async def generate(interaction: discord.Interaction, prompt: str):
         await interaction.response.defer()
         try:
             response = openai.Image.create(
+                model="dall-e-3",
                 prompt=prompt,
                 n=1,
-                size="512x512"
+                size="1024x1024",
             )
             image_url = response['data'][0]['url']
             img: discord.Embed = discord.Embed(title=prompt, color=0xffffff)
