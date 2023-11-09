@@ -107,7 +107,15 @@ async def talk_history(interaction: discord.Interaction):
 
 @tree.command(name="generate", description="OpenAIのAPIにアクセスして画像を生成するよ")
 @app_commands.describe(prompt="生成する画像を指定する文章を入力してね")
-async def generate(interaction: discord.Interaction, prompt: str):
+@app_commands.describe(size="生成する画像のサイズを指定するよ")
+@app_commands.choices(
+        model_name= [
+            app_commands.Choice(name="1024x1024", value="1024x1024"),
+            app_commands.Choice(name="1792x1024", value="1792x1024"),
+            app_commands.Choice(name="1024x1792", value="1024x1792"),
+         ]
+    )
+async def generate(interaction: discord.Interaction, prompt: str, size:app_commands.Choice[str]="1024x1024"):
     print(f"prompt:'{prompt}'")
     if prompt == "":
         await interaction.response.send_message("`/generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
@@ -119,7 +127,7 @@ async def generate(interaction: discord.Interaction, prompt: str):
                 model="dall-e-3",
                 prompt=prompt,
                 n=1,
-                size="1024x1024",
+                size=size,
             )
             image_url = response['data'][0]['url']
             img: discord.Embed = discord.Embed(title=prompt[:255], color=0xffffff)
