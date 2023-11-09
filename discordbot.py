@@ -109,7 +109,7 @@ async def talk_history(interaction: discord.Interaction):
 @app_commands.describe(prompt="生成する画像を指定する文章を入力してね")
 @app_commands.describe(size="生成する画像のサイズを指定するよ")
 @app_commands.choices(
-        model_name= [
+            size = [
             app_commands.Choice(name="1024x1024", value="1024x1024"),
             app_commands.Choice(name="1792x1024", value="1792x1024"),
             app_commands.Choice(name="1024x1792", value="1024x1792"),
