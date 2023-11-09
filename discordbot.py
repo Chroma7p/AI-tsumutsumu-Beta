@@ -126,8 +126,8 @@ async def generate(interaction: discord.Interaction, prompt: str):
             img.set_image(url=image_url)
             print(image_url)
             await interaction.followup.send(embed=img)
-        except Exception:
-            await interaction.followup.send("何かわかんないけど失敗しちゃった！\n/generate rainbow cat`のように、コマンドのうしろに文字列を入れてね！")
+        except Exception as e:
+            await interaction.followup.send(f"エラーだよ！\n```{e}```")
 
 
 @tree.command(name="normal", description="通常のChatGPTモードに切り替えるよ 会話ログは消えるよ")
