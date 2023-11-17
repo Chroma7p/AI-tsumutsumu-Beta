@@ -1,7 +1,7 @@
 # discord.pyの大事な部分をimport
 
 import discord
-from discord.ext import commands,tasks
+from discord.ext import commands, tasks
 import os
 import asyncio
 import openai
@@ -109,13 +109,13 @@ async def talk_history(interaction: discord.Interaction):
 @app_commands.describe(prompt="生成する画像を指定する文章を入力してね")
 @app_commands.describe(size="生成する画像のサイズを指定するよ")
 @app_commands.choices(
-            size = [
-            app_commands.Choice(name="1024x1024", value="1024x1024"),
-            app_commands.Choice(name="1792x1024", value="1792x1024"),
-            app_commands.Choice(name="1024x1792", value="1024x1792"),
-         ]
-    )
-async def generate(interaction: discord.Interaction, prompt: str, size:app_commands.Choice[str]="1024x1024"):
+    size=[
+        app_commands.Choice(name="1024x1024", value="1024x1024"),
+        app_commands.Choice(name="1792x1024", value="1792x1024"),
+        app_commands.Choice(name="1024x1792", value="1024x1792"),
+    ]
+)
+async def generate(interaction: discord.Interaction, prompt: str, size: app_commands.Choice[str] = "1024x1024"):
     print(f"prompt:'{prompt}'")
     if prompt == "":
         await interaction.response.send_message("`/generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
@@ -127,10 +127,11 @@ async def generate(interaction: discord.Interaction, prompt: str, size:app_comma
                 model="dall-e-3",
                 prompt=prompt,
                 n=1,
-                size=size,
+                size=str(size),
             )
             image_url = response['data'][0]['url']
-            img: discord.Embed = discord.Embed(title=prompt[:255], color=0xffffff)
+            img: discord.Embed = discord.Embed(
+                title=prompt[:255], color=0xffffff)
             img.set_image(url=image_url)
             print(image_url)
             await interaction.followup.send(embed=img)
@@ -249,8 +250,9 @@ async def user_info(interaction: discord.Interaction):
     text += f"global_name:{user.global_name}\n"
     await interaction.response.send_message(text)
 
+
 @tree.command(name="destruction", description="パラメータを破壊するよ")
-@app_commands.describe(precense_penalty="すでに存在するワードへのペナルティ(-2.0<x<2.0)",frequency_penalty="頻度に対するペナルティ(-2.0<x<2.0)")
+@app_commands.describe(precense_penalty="すでに存在するワードへのペナルティ(-2.0<x<2.0)", frequency_penalty="頻度に対するペナルティ(-2.0<x<2.0)")
 async def destruction(interaction: discord.Interaction, precense_penalty: float = -2.0, frequency_penalty: float = -2.0):
     if interaction.channel.id not in channels:
         return await interaction.response.send_message("いないよ……")
@@ -258,6 +260,7 @@ async def destruction(interaction: discord.Interaction, precense_penalty: float 
     channel.precense_penalty = precense_penalty
     channel.frequency_penalty = frequency_penalty
     await interaction.response.send_message("破壊したよ")
+
 
 @tree.command(name="regeneration", description="パラメータを戻すよ")
 async def regeneration(interaction: discord.Interaction):
@@ -267,24 +270,25 @@ async def regeneration(interaction: discord.Interaction):
     channel.precense_penalty = 0.0
     channel.frequency_penalty = 0.0
     await interaction.response.send_message("戻したよ")
-    
+
+
 @tree.command(name="secret", description="ひみつの鍵を入れられるよ")
 @app_commands.describe(secret_key="ひみつの鍵")
-async def secret(interaction: discord.Interaction,secret_key: str):
+async def secret(interaction: discord.Interaction, secret_key: str):
     if interaction.channel.id not in channels:
         return await interaction.response.send_message("いないよ……")
     channel = channels[interaction.channel.id]
-    if channel.model!="gpt-3.5-turbo-0613":
-        return await interaction.response.send_message("すでに切り替わっているよ!",ephemeral=True)
-    if channel.secret_key_count<=0:
-        return await interaction.response.send_message("今日の分のチャンスがないよ！",ephemeral=True)
-    if secret_key==os.environ["SECRET_KEY"]:
-        channel.model="gpt-4-0613"
+    if channel.model != "gpt-3.5-turbo-0613":
+        return await interaction.response.send_message("すでに切り替わっているよ!", ephemeral=True)
+    if channel.secret_key_count <= 0:
+        return await interaction.response.send_message("今日の分のチャンスがないよ！", ephemeral=True)
+    if secret_key == os.environ["SECRET_KEY"]:
+        channel.model = "gpt-4-0613"
         await interaction.response.send_message("gpt4に変更したよ！開発者の財布を破壊しよう！")
     else:
-        channel.secret_key_count-=1
-        await interaction.response.send_message(f"鍵が違うよ！今日のチャンスはあと{channel.secret_key_count}回だよ",ephemeral=True)
-    
+        channel.secret_key_count -= 1
+        await interaction.response.send_message(f"鍵が違うよ！今日のチャンスはあと{channel.secret_key_count}回だよ", ephemeral=True)
+
 
 @bot.event
 # botの起動が完了したとき
@@ -303,18 +307,19 @@ async def on_ready():
 
 @tasks.loop(seconds=60)
 async def notif():
-    
-    tz=dt.timezone(dt.timedelta(hours=9))
-    now=dt.datetime.now(tz)
-    if now.hour==23 and now.minute==59:
+
+    tz = dt.timezone(dt.timedelta(hours=9))
+    now = dt.datetime.now(tz)
+    if now.hour == 23 and now.minute == 59:
         notif_channels = os.environ["NOTIF_CHANNEL"].split(",")
         if not notif_channels:
             return
         for channel_id in notif_channels:
-            channel=bot.get_channel(int(channel_id))
+            channel = bot.get_channel(int(channel_id))
             await channel.send("今日はとっても楽しかったね。明日はも～っと楽しくなるよね。ねっハム太郎♪")
 
 errmsg = "err:The server had an error processing your request."
+
 
 @bot.event
 async def on_message(message: discord.Message):
@@ -335,22 +340,22 @@ async def on_message(message: discord.Message):
     except Exception as e:
         print(e)
 
-
     try:
         msg = await message.reply("考え中……")
         reply = ""
-        chunk_size=50
-        next_chunk=chunk_size
-        response = channel.send(message.author.display_name+' : '+message.content)
+        chunk_size = 50
+        next_chunk = chunk_size
+        response = channel.send(
+            message.author.display_name+' : '+message.content)
         for chunk in response:
             reply += chunk
             if len(reply) > next_chunk:
-                try: 
+                try:
                     await msg.edit(content=reply)
                 except Exception as e:
                     msg = await message.channel.send(reply)
                 next_chunk += chunk_size
-        try: 
+        try:
             all_token = channel.get_now_token()
             completion_token = channel.history[-1].token
             all_token -= completion_token
@@ -358,20 +363,18 @@ async def on_message(message: discord.Message):
                 prompt_cost = 0.0015
                 completion_cost = 0.002
             elif channel.model == "gpt-4-0613":
-                prompt_cost= 0.03
+                prompt_cost = 0.03
                 completion_cost = 0.06
             else:
                 price = 0
-            prompt_price= prompt_cost*(all_token/1000)
+            prompt_price = prompt_cost*(all_token/1000)
             completion_price = completion_cost*(completion_token/1000)
             reply += f"\n\nlog_token: {all_token}x({prompt_cost}/1K)=${prompt_price:.4}\ncompletion_token: {completion_token}x({completion_cost}/1K)=${completion_price:.4}\n消費: ${prompt_price+completion_price:.4}"
             await msg.edit(content=reply)
-            
+
         except Exception as e:
             msg = await message.channel.send(reply)
-            
-            
-            
+
     # APIの応答エラーを拾う
     except openai.error.InvalidRequestError as e:
         reply = f"err:情報の取得に失敗したみたい\nもう一回試してみてね\n```{e}```"
@@ -393,7 +396,7 @@ async def main():
     # start the client
     async with bot:
         try:
-            
+
             await bot.start(API_TOKEN)
         except KeyboardInterrupt:
             await bot.close()
