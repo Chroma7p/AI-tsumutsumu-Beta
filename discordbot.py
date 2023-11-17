@@ -127,7 +127,7 @@ async def generate(interaction: discord.Interaction, prompt: str, size: app_comm
                 model="dall-e-3",
                 prompt=prompt,
                 n=1,
-                size=str(size),
+                size=size.value,
             )
             image_url = response['data'][0]['url']
             img: discord.Embed = discord.Embed(
