@@ -134,7 +134,7 @@ async def generate(interaction: discord.Interaction, prompt: str, size: app_comm
                 title=prompt[:255], color=0xffffff)
             img.set_image(url=image_url)
             print(image_url)
-            await interaction.followup.send(embed=img)
+            await interaction.followup.send(content=prompt, embed=img)
         except Exception as e:
             await interaction.followup.send(f"エラーだよ！\n```{e}```")
 
