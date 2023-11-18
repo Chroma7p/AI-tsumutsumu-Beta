@@ -115,7 +115,7 @@ async def talk_history(interaction: discord.Interaction):
         app_commands.Choice(name="1024x1792", value="1024x1792"),
     ]
 )
-async def generate(interaction: discord.Interaction, prompt: str, size: app_commands.Choice[str] = "1024x1024"):
+async def generate(interaction: discord.Interaction, prompt: str, size: app_commands.Choice[str]|None = None):
     print(f"prompt:'{prompt}'")
     if prompt == "":
         await interaction.response.send_message("`/generate rainbow cat`のように、コマンドの後ろに文字列を入れてね！")
@@ -127,7 +127,7 @@ async def generate(interaction: discord.Interaction, prompt: str, size: app_comm
                 model="dall-e-3",
                 prompt=prompt,
                 n=1,
-                size=size.value,
+                size=size.value if size else "1024x1024",
             )
             image_url = response['data'][0]['url']
             img: discord.Embed = discord.Embed(
