@@ -60,10 +60,10 @@ def is_question(message: discord.Message):
 
 def is_twitter_link(txt: str) -> bool:
     try:
-        if re.match(r"https?://twitter.com/\w+/status/\d+", txt):
+        if re.search(r"https?://twitter.com/\w+/status/\d+", txt):
             print(re.match(r"https?://twitter.com/\w+/status/\d+", txt))
             return True
-        if re.match(r"https?://x.com/\w+/status/\d+", txt):
+        if re.search(r"https?://x.com/\w+/status/\d+", txt):
             print(re.match(r"https?://x.com/\w+/status/\d+", txt))
             return True
         return False
