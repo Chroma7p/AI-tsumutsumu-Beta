@@ -11,6 +11,7 @@ from judging_puns import scoring
 import MeCab
 import random
 import datetime as dt
+import re
 
 
 from dotenv import load_dotenv
@@ -55,6 +56,20 @@ def is_question(message: discord.Message):
         return False
 
     return True
+
+
+def is_twitter_link(txt: str) -> bool:
+    try:
+        if re.match(r"https?://twitter.com/\w+/status/\d+", txt):
+            print(re.match(r"https?://twitter.com/\w+/status/\d+", txt))
+            return True
+        if re.match(r"https?://x.com/\w+/status/\d+", txt):
+            print(re.match(r"https?://x.com/\w+/status/\d+", txt))
+            return True
+        return False
+    except Exception as e:
+        print(e)
+        return False
 
 
 @tree.command(name="join", description="臨時でチャンネルに参加するよ、しばらくたつと反応しなくなるよ")
@@ -327,11 +342,23 @@ errmsg = "err:The server had an error processing your request."
 
 @bot.event
 async def on_message(message: discord.Message):
-    # print(channels, message.channel.id)
-    channel = channels[message.channel.id]
-    # print(channel, message.content)
-    if not is_question(message):
+    # Twitterのリンクを含むメッセージのリンクをvxtwitterに置換してリプライ
+    try:
+        print(is_twitter_link(message.content))
+
+    except Exception as e:
+        print(e)
+    if is_twitter_link(message.content):
+        link = message.content.replace(
+            "https://twitter.com/", "https://vxtwitter.com/")
+        link = link.replace("https://x.com/", "https://vxtwitter.com/")
+        return await message.reply(link)
+
+    elif not is_question(message):
+        print("not question")
         return await bot.process_commands(message)
+
+    channel = channels[message.channel.id]
     try:
         if channel.dajare:
             score, rep = scoring(message.content)
