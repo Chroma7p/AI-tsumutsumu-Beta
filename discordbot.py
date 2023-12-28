@@ -58,7 +58,7 @@ def is_question(message: discord.Message):
     return True
 
 
-def is_twitter_link(txt: str) -> bool:
+def has_twitter_link(txt: str) -> bool:
     try:
         if re.search(r"https?://twitter.com/\w+/status/\d+", txt):
             print(re.match(r"https?://twitter.com/\w+/status/\d+", txt))
@@ -344,14 +344,19 @@ errmsg = "err:The server had an error processing your request."
 async def on_message(message: discord.Message):
     # Twitterのリンクを含むメッセージのリンクをvxtwitterに置換してリプライ
     try:
-        print(is_twitter_link(message.content))
+        print(has_twitter_link(message.content))
 
     except Exception as e:
         print(e)
-    if is_twitter_link(message.content):
-        link = message.content.replace(
-            "https://twitter.com/", "https://vxtwitter.com/")
-        link = link.replace("https://x.com/", "https://vxtwitter.com/")
+    if has_twitter_link(message.content):
+        # twitter.comとx.comのリンクをピックアップして
+        # vxtwitterのリンクに変換して改行区切りで返す
+        links = re.findall(
+            r"https?://(?:twitter|x)\.com/\w+/status/\d+", message.content)
+        link = ""
+        for l in links:
+            link += f"https://vxtwitter.com/{l[19:]}\n"
+
         return await message.reply(link)
 
     elif not is_question(message):
