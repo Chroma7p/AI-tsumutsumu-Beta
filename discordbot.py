@@ -355,8 +355,10 @@ async def on_message(message: discord.Message):
             r"https?://(?:twitter|x)\.com/\w+/status/\d+", message.content)
         link = ""
         for l in links:
-            link += f"https://vxtwitter.com/{l[19:]}\n"
-
+            if "twitter.com" in l:
+                link += l.replace("https://twitter.com", "https://vxtwitter.com")
+            else:
+                link += l.replace("https://x.com", "https://vxtwitter.com")
         return await message.reply(link)
 
     elif not is_question(message):
