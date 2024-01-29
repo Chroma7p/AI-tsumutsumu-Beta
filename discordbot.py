@@ -348,6 +348,7 @@ async def on_message(message: discord.Message):
 
     except Exception as e:
         print(e)
+    """discordのTwitter埋め込みが復活したので封印
     if has_twitter_link(message.content):
         # twitter.comとx.comのリンクをピックアップして
         # vxtwitterのリンクに変換して改行区切りで返す
@@ -360,8 +361,9 @@ async def on_message(message: discord.Message):
             else:
                 link += l.replace("https://x.com", "https://vxtwitter.com")
         return await message.reply(link)
+    """
 
-    elif not is_question(message):
+    if not is_question(message):
         print("not question")
         return await bot.process_commands(message)
 
