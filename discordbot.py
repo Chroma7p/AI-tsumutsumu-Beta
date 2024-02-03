@@ -409,7 +409,7 @@ async def on_message(message: discord.Message):
                 price = 0
             prompt_price = prompt_cost*(all_token/1000)
             completion_price = completion_cost*(completion_token/1000)
-            reply += f"\n\nlog_token: {all_token}x({prompt_cost}/1K)=${prompt_price:.4}\ncompletion_token: {completion_token}x({completion_cost}/1K)=${completion_price:.4}\n消費: ${prompt_price+completion_price:.4}"
+            # reply += f"\n\nlog_token: {all_token}x({prompt_cost}/1K)=${prompt_price:.4}\ncompletion_token: {completion_token}x({completion_cost}/1K)=${completion_price:.4}\n消費: ${prompt_price+completion_price:.4}"
             await msg.edit(content=reply)
 
         except Exception as e:
