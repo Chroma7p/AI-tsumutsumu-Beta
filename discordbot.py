@@ -399,7 +399,7 @@ async def on_message(message: discord.Message):
             all_token = channel.get_now_token()
             completion_token = channel.history[-1].token
             all_token -= completion_token
-            if channel.model == "gpt-3.5-turbo-0613":
+            if channel.model == "gpt-3.5-turbo-0125":
                 prompt_cost = 0.0015
                 completion_cost = 0.002
             elif channel.model == "gpt-4-0613":
