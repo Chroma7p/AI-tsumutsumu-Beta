@@ -395,6 +395,7 @@ async def on_message(message: discord.Message):
                 except Exception as e:
                     msg = await message.channel.send(reply)
                 next_chunk += chunk_size
+        await msg.edit(content=reply)
         try:
             all_token = channel.get_now_token()
             completion_token = channel.history[-1].token
@@ -410,10 +411,9 @@ async def on_message(message: discord.Message):
             prompt_price = prompt_cost*(all_token/1000)
             completion_price = completion_cost*(completion_token/1000)
             # reply += f"\n\nlog_token: {all_token}x({prompt_cost}/1K)=${prompt_price:.4}\ncompletion_token: {completion_token}x({completion_cost}/1K)=${completion_price:.4}\n消費: ${prompt_price+completion_price:.4}"
-            await msg.edit(content=reply)
 
         except Exception as e:
-            msg = await message.channel.send(reply)
+            print("failed to calculate token cost", e)
 
     # APIの応答エラーを拾う
     except openai.error.InvalidRequestError as e:
