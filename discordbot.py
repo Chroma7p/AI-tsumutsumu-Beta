@@ -290,6 +290,7 @@ async def regeneration(interaction: discord.Interaction):
     channel.frequency_penalty = 0.0
     await interaction.response.send_message("戻したよ")
 
+"""ひみつの鍵を封印
 
 @tree.command(name="secret", description="ひみつの鍵を入れられるよ")
 @app_commands.describe(secret_key="ひみつの鍵")
@@ -308,7 +309,7 @@ async def secret(interaction: discord.Interaction, secret_key: str):
         channel.secret_key_count -= 1
         await interaction.response.send_message(f"鍵が違うよ！今日のチャンスはあと{channel.secret_key_count}回だよ", ephemeral=True)
 
-
+"""
 @bot.event
 # botの起動が完了したとき
 async def on_ready():
