@@ -60,8 +60,9 @@ class Channel:
     def send(self, content: str):
         if self.mode == Mode.tsumugi:
 
-            new_content = TSUMUGI_REPLY.replace("{user_input}", content)
-            new_message = Message(Role.user, new_content)
+            # new_content = TSUMUGI_REPLY.replace("{user_input}", content)
+            # new_message = Message(Role.user, new_content)
+            new_message = Message(Role.user, content)
             if new_message.token + self.get_now_token() + self.REPLY_TOKEN + 200 > self.TOKEN_LIMIT:
                 self.thin_out(new_message.token)
             self.history.append(new_message)
@@ -85,7 +86,7 @@ class Channel:
                 break
         if self.mode == Mode.tsumugi:
             self.history[-1] = Message(Role.system, content)
-        reply = "つむぎ : " + reply
+        reply = reply
         self.history.append(Message(Role.assistant, reply))
         self.thin_out()
 
