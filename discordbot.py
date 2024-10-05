@@ -1,5 +1,6 @@
 # discord.pyの大事な部分をimport
 
+import urllib.request
 import discord
 from discord.ext import commands, tasks
 import os
@@ -12,7 +13,7 @@ import MeCab
 import random
 import datetime as dt
 import re
-
+import urllib
 
 from dotenv import load_dotenv
 load_dotenv(".env")
@@ -145,15 +146,18 @@ async def generate(interaction: discord.Interaction, prompt: str, size: app_comm
             response = openai.Image.create(
                 model="dall-e-3",
                 prompt=prompt,
+                quality="hd",
                 n=1,
                 size=size
             )
             image_url = response['data'][0]['url']
-            img: discord.Embed = discord.Embed(
-                title=prompt[:255], color=0xffffff)
-            img.set_image(url=image_url)
-            print(image_url)
-            await interaction.followup.send(content=prompt, embed=img)
+            try:
+                urllib.request.urlretrieve(image_url, "image.png")
+                with open("image.png", "rb") as f:
+                    await interaction.followup.send(content=f"```{prompt}```",file=discord.File(f))
+            except Exception as e:
+                await interaction.followup.send(f"エラーだよ！\n```{e}```\n```{response}")
+            
         except Exception as e:
             await interaction.followup.send(f"エラーだよ！\n```{e}```")
 
